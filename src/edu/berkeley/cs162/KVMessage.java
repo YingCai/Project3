@@ -43,7 +43,6 @@ public class KVMessage {
 	private String msgType = null;
 	private String key = null;
 	private String value = null;
-	private String status = null;
 	private String message = null;
 	
 	public final String getKey() {
@@ -60,14 +59,6 @@ public class KVMessage {
 
 	public final void setValue(String value) {
 		this.value = value;
-	}
-
-	public final String getStatus() {
-		return status;
-	}
-
-	public final void setStatus(String status) {
-		this.status = status;
 	}
 
 	public final String getMessage() {

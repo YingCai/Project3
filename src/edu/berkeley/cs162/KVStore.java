@@ -51,13 +51,12 @@ public class KVStore implements KeyValueInterface {
 		store = new Hashtable<String, String>();
 	}
 	
-	public boolean put(String key, String value) throws KVException {
+	public void put(String key, String value) throws KVException {
 		AutoGrader.agStorePutStarted(key, value);
 		
 		try {
 			putDelay();
 			store.put(key, value);
-			return false;
 		} finally {
 			AutoGrader.agStorePutFinished(key, value);
 		}
@@ -103,16 +102,21 @@ public class KVStore implements KeyValueInterface {
 		AutoGrader.agStoreDelay();
 	}
 	
-    public String toXML() throws KVException {
+    public String toXML() {
         // TODO: implement me
         return null;
     }        
 
-    public void dumpToFile(String fileName) throws KVException {
+    public void dumpToFile(String fileName) {
         // TODO: implement me
     }
 
-    public void restoreFromFile(String fileName) throws KVException{
+    /**
+     * Replaces the contents of the store with the contents of a file
+     * written by dumpToFile; the previous contents of the store are lost.
+     * @param fileName the file to be read.
+     */
+    public void restoreFromFile(String fileName) {
         // TODO: implement me
     }
 }
