@@ -64,11 +64,9 @@ public class KVClient implements KeyValueInterface {
 	    // TODO: Implement Me!
 	}
 	
-	public boolean put(String key, String value) throws KVException {
+	public void put(String key, String value) throws KVException {
 	    // TODO: Implement Me!
-	    return true;
 	}
-
 
 	public String get(String key) throws KVException {
 	    // TODO: Implement Me!

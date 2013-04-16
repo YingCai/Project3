@@ -42,10 +42,9 @@ public interface KeyValueInterface {
 	 * Insert Key, Value pair into the storage unit 
 	 * @param key is the object used to index into the store
 	 * @param value is the object corresponding to a unique key
-	 * @return whether a value was overwritten when inserting the new data tuple
 	 * @throws IOException is thrown when there is an error when inserting the entry into the store 
 	 */
-	public boolean put(String key, String value) throws KVException;
+	public void put(String key, String value) throws KVException;
 	
 	/**
 	 * Retrieve the object corresponding to the provided key 
