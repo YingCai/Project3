@@ -104,13 +104,9 @@ public class KVStore implements KeyValueInterface {
 	private void delDelay() {
 		AutoGrader.agStoreDelay();
 	}
-<<<<<<< HEAD
 
-    public String toXML() throws KVException {
-=======
 
     public String toXML() {
->>>>>>> origin
         // TODO: implement me
         return null;
     }
