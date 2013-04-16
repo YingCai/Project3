@@ -1,10 +1,10 @@
 /**
- * Persistent Key-Value storage layer. Current implementation is transient, 
+ * Persistent Key-Value storage layer. Current implementation is transient,
  * but assume to be backed on disk when you do your project.
- * 
+ *
  * @author Mosharaf Chowdhury (http://www.mosharaf.com)
  * @author Prashanth Mohan (http://www.cs.berkeley.edu/~prmohan)
- * 
+ *
  * Copyright (c) 2012, University of California at Berkeley
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -17,7 +17,7 @@
  *  * Neither the name of University of California, Berkeley nor the
  *    names of its contributors may be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *    
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -35,14 +35,14 @@ import java.util.Hashtable;
 
 
 /**
- * This is a dummy KeyValue Store. Ideally this would go to disk, 
- * or some other backing store. For this project, we simulate the disk like 
+ * This is a dummy KeyValue Store. Ideally this would go to disk,
+ * or some other backing store. For this project, we simulate the disk like
  * system using a manual delay.
  *
  */
 public class KVStore implements KeyValueInterface {
 	private Dictionary<String, String> store 	= null;
-	
+
 	public KVStore() {
 		resetStore();
 	}
@@ -50,10 +50,12 @@ public class KVStore implements KeyValueInterface {
 	private void resetStore() {
 		store = new Hashtable<String, String>();
 	}
-	
+
 	public boolean put(String key, String value) throws KVException {
 		AutoGrader.agStorePutStarted(key, value);
-		
+
+		System.out.println("KVSTORE put called with: " + key + " " + value);
+
 		try {
 			putDelay();
 			store.put(key, value);
@@ -62,10 +64,10 @@ public class KVStore implements KeyValueInterface {
 			AutoGrader.agStorePutFinished(key, value);
 		}
 	}
-	
+
 	public String get(String key) throws KVException {
 		AutoGrader.agStoreGetStarted(key);
-		
+
 		try {
 			getDelay();
 			String retVal = this.store.get(key);
@@ -78,7 +80,7 @@ public class KVStore implements KeyValueInterface {
 			AutoGrader.agStoreGetFinished(key);
 		}
 	}
-	
+
 	public void del(String key) throws KVException {
 		AutoGrader.agStoreDelStarted(key);
 
@@ -90,23 +92,23 @@ public class KVStore implements KeyValueInterface {
 			AutoGrader.agStoreDelFinished(key);
 		}
 	}
-	
+
 	private void getDelay() {
 		AutoGrader.agStoreDelay();
 	}
-	
+
 	private void putDelay() {
 		AutoGrader.agStoreDelay();
 	}
-	
+
 	private void delDelay() {
 		AutoGrader.agStoreDelay();
 	}
-	
+
     public String toXML() throws KVException {
         // TODO: implement me
         return null;
-    }        
+    }
 
     public void dumpToFile(String fileName) throws KVException {
         // TODO: implement me

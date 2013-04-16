@@ -1,9 +1,9 @@
 /**
  * Slave Server component of a KeyValue store
- * 
+ *
  * @author Mosharaf Chowdhury (http://www.mosharaf.com)
  * @author Prashanth Mohan (http://www.cs.berkeley.edu/~prmohan)
- * 
+ *
  * Copyright (c) 2012, University of California at Berkeley
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *  * Neither the name of University of California, Berkeley nor the
  *    names of its contributors may be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *    
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,20 +31,20 @@
 package edu.berkeley.cs162;
 
 /**
- * This class defines the slave key value servers. Each individual KVServer 
- * would be a fully functioning Key-Value server. For Project 3, you would 
- * implement this class. For Project 4, you will have a Master Key-Value server 
- * and multiple of these slave Key-Value servers, each of them catering to a 
+ * This class defines the slave key value servers. Each individual KVServer
+ * would be a fully functioning Key-Value server. For Project 3, you would
+ * implement this class. For Project 4, you will have a Master Key-Value server
+ * and multiple of these slave Key-Value servers, each of them catering to a
  * different part of the key namespace.
  *
  */
 public class KVServer implements KeyValueInterface {
 	private KVStore dataStore = null;
 	private KVCache dataCache = null;
-	
+
 	private static final int MAX_KEY_SIZE = 256;
 	private static final int MAX_VAL_SIZE = 256 * 1024;
-	
+
 	/**
 	 * @param numSets number of sets in the data Cache.
 	 */
@@ -54,18 +54,18 @@ public class KVServer implements KeyValueInterface {
 
 		AutoGrader.registerKVServer(dataStore, dataCache);
 	}
-	
+
 	public boolean put(String key, String value) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerPutStarted(key, value);
 
-		// TODO: implement me
+		dataStore.put(key, value);
 
 		// Must be called before returning
 		AutoGrader.agKVServerPutFinished(key, value);
 		return false;
 	}
-	
+
 	public String get (String key) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerGetStarted(key);
@@ -76,7 +76,7 @@ public class KVServer implements KeyValueInterface {
 		AutoGrader.agKVServerGetFinished(key);
 		return null;
 	}
-	
+
 	public void del (String key) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerDelStarted(key);
