@@ -32,7 +32,9 @@
 package edu.berkeley.cs162;
 
 import java.net.Socket;
-
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.UnknownHostException;
 
 /**
  * This class is used to communicate with (appropriately marshalling and unmarshalling) 
@@ -56,26 +58,107 @@ public class KVClient implements KeyValueInterface {
 	}
 	
 	private Socket connectHost() throws KVException {
-	    // TODO: Implement Me!  
-		return null;
+	    Socket socket = null;
+        try {
+            socket = new Socket(this.server, this.port);
+        } catch(UnknownHostException u) {
+            throw new KVException(new KVMessage("resp", "Network Error: Could not connect"));
+        } catch(IOException io) {
+            throw new KVException(new KVMessage("resp", "Network Error: Could not create socket"));
+        }
+        return socket;
 	}
 	
 	private void closeHost(Socket sock) throws KVException {
-	    // TODO: Implement Me!
+	    try {
+            sock.close();
+        } catch(IOException io) {
+            throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t close connection"));
+        }
 	}
 	
-	public boolean put(String key, String value) throws KVException {
-	    // TODO: Implement Me!
-	    return true;
+	public void put(String key, String value) throws KVException {
+        Socket socket = this.connectHost();
+        KVMessage kvReq = new KVMessage("putreq");
+        kvReq.setKey(key);
+        kvReq.setValue(value);
+        kvReq.sendMessage(socket);
+        Boolean success = false;
+
+        try {
+			socket.shutdownOutput();
+		} catch(IOException io) {
+			throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
+		}
+
+        try {
+            InputStream in = socket.getInputStream();
+            KVMessage kvResp = new KVMessage(in);
+            if(kvResp.getMessage().equals("Success")) {
+                success = true;
+            } else if(kvResp.getKey() == null){
+                throw new KVException(response);
+            }
+        } catch(IOException io) {
+            throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
+        }
+        
+        if(!success)
+            throw new KVException(new KVMessage("resp", "Unknown Error: Put failed"));
+
+        this.closeHost(socket);
 	}
 
 
 	public String get(String key) throws KVException {
-	    // TODO: Implement Me!
-	    return null;
+	    Socket socket = this.connectHost();
+        KVMessage kvReq = new KVMessage("getreq");
+        kvReq.setKey(key);
+        kvReq.sendMessage(socket);
+        
+        try {
+			socket.shutdownOutput();
+		} catch(IOException io) {
+			throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
+		}
+
+        try {
+            InputStream in = socket.getInputStream();
+            KVMessage kvResp = new KVMessage(in);
+            if(kvResp.getMessage() != null) {
+            	throw new KVException(kvResp);
+            }
+            String result = kvResp.getValue();
+        } catch(IOException io) {
+            throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
+        }
+
+        this.closeHost(socket);
+        return result;
 	}
 	
 	public void del(String key) throws KVException {
-	    // TODO: Implement Me!
+		Socket socket = this.connectHost();
+        KVMessage kvReq = new KVMessage("delreq");
+        kvReq.setKey(key);
+        kvReq.sendMessage(socket);
+
+        try {
+			socket.shutdownOutput();
+		} catch(IOException io) {
+			throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
+		}
+
+		try {
+			InputStream in = socket.getInputStream();
+			KVMessage kvResp = new KVMessage(in);
+		} catch(IOException io) {
+			throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
+		}
+
+		if(!kvResp.getMessage().equals("Success"))
+			throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
+
+        this.closeHost(socket);
 	}	
 }
