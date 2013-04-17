@@ -45,6 +45,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.OutputKeys;
 
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -180,9 +182,9 @@ public class KVStore implements KeyValueInterface {
         // System.out.println("File saved!");
 
       } catch (ParserConfigurationException pce) {
-        pce.printStackTrace();
+            pce.printStackTrace();
       } catch (TransformerException tfe) {
-        tfe.printStackTrace();
+            tfe.printStackTrace();
       }
     }
 
@@ -193,7 +195,53 @@ public class KVStore implements KeyValueInterface {
      * @param fileName the file to be read.
      */
     public void restoreFromFile(String fileName) {
-        // TODO: implement me
+
+        try {
+
+            File xmlFile = new File(fileName);
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document doc = dBuilder.parse(xmlFile);
+            doc.getDocumentElement().normalize();
+
+            String rootElement = doc.getDocumentElement().getNodeName();
+
+            System.out.println("Root Element: " + rootElement);
+
+            if (rootElement != "KVStore") {
+                System.out.println("Root element does not equal KVStore");
+                throw new KVException(null);
+            }
+
+            //reset the store in preparation for iterating through XML
+            dataStore.clear();
+
+            NodeList keyValues = doc.getElementsByTagName("KVPair");
+
+            for (int temp = 0; temp < keyValues.getLength(); temp++) {
+
+                Node node = keyValues.item(temp);
+
+                Element KVPair = (Element) node;
+
+                String key = KVPair.getElementsByTagName("Key").item(0).getTextContent();
+                String value = KVPair.getElementsByTagName("Value").item(0).getTextContent();
+
+                System.out.println("Key: " + key);
+                System.out.println("Value: " + value);
+
+
+
+                // System.out.println("\nCurrent Element :" + node.getNodeName());
+
+
+
+            }
+            // System.out.println("Root Element: " + rootElement);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public static void main(String[] args) {
@@ -207,6 +255,7 @@ public class KVStore implements KeyValueInterface {
         }
 
         dataStore.dumpToFile("dummy");
+        dataStore.restoreFromFile("file.xml");
 
         // System.out.println("Store: " + dataStore.store);
     }
