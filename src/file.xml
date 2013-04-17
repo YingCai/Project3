@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<KVStore>
+  <KVPair>
+    <Key>5</Key>
+    <Value>5</Value>
+  </KVPair>
+  <KVPair>
+    <Key>3</Key>
+    <Value>7</Value>
+  </KVPair>
+</KVStore>

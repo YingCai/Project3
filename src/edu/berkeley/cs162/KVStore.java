@@ -30,9 +30,24 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package edu.berkeley.cs162;
+
+
 import java.util.Dictionary;
 import java.util.Hashtable;
+import java.io.File;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.OutputKeys;
 
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * This is a dummy KeyValue Store. Ideally this would go to disk,
@@ -41,7 +56,7 @@ import java.util.Hashtable;
  *
  */
 public class KVStore implements KeyValueInterface {
-	private Dictionary<String, String> store 	= null;
+	private Hashtable<String, String> store 	= null;
 
 	public KVStore() {
 		resetStore();
@@ -112,8 +127,65 @@ public class KVStore implements KeyValueInterface {
     }
 
     public void dumpToFile(String fileName) {
-        // TODO: implement me
+
+        try {
+
+        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+        // create XML document
+        Document doc = docBuilder.newDocument();
+
+        // create KVStore root element
+        Element rootElement = doc.createElement("KVStore");
+        doc.appendChild(rootElement);
+
+        // start iterating through KV Pairs
+
+        for ( String key : store.keySet() ) {
+
+            //create KVPair node
+            Element kvPair = doc.createElement("KVPair");
+            rootElement.appendChild(kvPair);
+
+            //create Key node
+            Element xmlKey = doc.createElement("Key");
+            xmlKey.appendChild(doc.createTextNode(key));
+
+            // create Value node
+            Element xmlValue = doc.createElement("Value");
+            xmlValue.appendChild(doc.createTextNode(store.get(key)));
+
+            kvPair.appendChild(xmlKey);
+            kvPair.appendChild(xmlValue);
+        }
+
+        // write the content into xml file
+        TransformerFactory transformerFactory = TransformerFactory.newInstance();
+        Transformer transformer = transformerFactory.newTransformer();
+
+        // formatting of the XML document that is written to file
+        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+
+        DOMSource source = new DOMSource(doc);
+        StreamResult fileResult = new StreamResult(new File("file.xml"));
+
+        // Output to console for testing
+        StreamResult result = new StreamResult(System.out);
+
+        transformer.transform(source, result);
+        transformer.transform(source, fileResult);
+
+        // System.out.println("File saved!");
+
+      } catch (ParserConfigurationException pce) {
+        pce.printStackTrace();
+      } catch (TransformerException tfe) {
+        tfe.printStackTrace();
+      }
     }
+
 
     /**
      * Replaces the contents of the store with the contents of a file
@@ -122,5 +194,20 @@ public class KVStore implements KeyValueInterface {
      */
     public void restoreFromFile(String fileName) {
         // TODO: implement me
+    }
+
+    public static void main(String[] args) {
+        System.out.println("Testing of KVStore");
+        KVStore dataStore = new KVStore();
+        try {
+            dataStore.put("3","7");
+            dataStore.put("5", "5");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        dataStore.dumpToFile("dummy");
+
+        // System.out.println("Store: " + dataStore.store);
     }
 }
