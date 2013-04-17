@@ -2,7 +2,7 @@
 
 cd /Users/jzhang621/Documents/Berkeley/CS162/projects/Project3/src/edu/berkeley/cs162/
 
-javac *.java
+javac *.java 2> /dev/null
 
 if [ $? -eq 0 ]
 then  

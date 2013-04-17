@@ -34,6 +34,8 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.*;
 
+import java.io.StringWriter;
+
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -68,7 +70,7 @@ public class KVCache implements KeyValueInterface {
 	private HashMap<String,Boolean> usedbits = new HashMap<String,Boolean>();
 	private HashMap<String,String> contents = new HashMap<String,String>();
 	private HashMap<String,Boolean> validbits = new HashMap<String,Boolean>();
-	private ReentrantReadWriteLock[] setlocks;
+	private ReentrantReadWriteLock[] setlocks = new ReentrantReadWriteLock[numSets];
 
 	/**
 	 * Creates a new LRU cache.
@@ -218,7 +220,38 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	public String toXML() {
-		// TODO: Implement Me!
-		return null;
+
+		try {
+
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+            // create XML document
+            Document doc = docBuilder.newDocument();
+
+            // create KVStore root element
+            Element rootElement = doc.createElement("KVCache");
+            doc.appendChild(rootElement);
+
+            return KVStore.toString(doc);
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+            throw new RuntimeException("Error parsing document");
+        } catch (Exception ex) {
+            throw new RuntimeException("Error generating document");
+        }
+
 	}
+
+	public static void main (String[] args) {
+
+		System.out.println("TESTING KVCACHE");
+		KVCache cache = new KVCache(100, 10);
+
+		System.out.println("\ncalling toXML()");
+		System.out.println(cache.toXML());
+
+	}
+
 }
