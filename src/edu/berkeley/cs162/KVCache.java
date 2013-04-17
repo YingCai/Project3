@@ -1,9 +1,9 @@
 /**
  * Implementation of a set-associative cache.
- * 
+ *
  * @author Mosharaf Chowdhury (http://www.mosharaf.com)
  * @author Prashanth Mohan (http://www.cs.berkeley.edu/~prmohan)
- * 
+ *
  * Copyright (c) 2012, University of California at Berkeley
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *  * Neither the name of University of California, Berkeley nor the
  *    names of its contributors may be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *    
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,13 +34,29 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.*;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.OutputKeys;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+
 
 /**
  * A set-associate cache which has a fixed maximum number of sets (numSets).
  * Each set has a maximum number of elements (MAX_ELEMS_PER_SET).
  * If a set is full and another entry is added, an entry is dropped based on the eviction policy.
  */
-public class KVCache implements KeyValueInterface {	
+public class KVCache implements KeyValueInterface {
 	private int numSets = 100;
 	private int maxElemsPerSet = 10;
 
@@ -104,7 +120,7 @@ public class KVCache implements KeyValueInterface {
 	 * Assumes the corresponding set has already been locked for writing.
 	 * @param key	the key with which the specified value is to be associated.
 	 * @param value	a value to be associated with the specified key.
-	 * @return true is something has been overwritten 
+	 * @return true is something has been overwritten
 	 */
 	public void put(String key, String value) {
 		// Must be called before anything else
@@ -122,7 +138,7 @@ public class KVCache implements KeyValueInterface {
 			set.remove(key);
 			set.add(key);
 			contents.put(key,value);
-			usedbits.put(oldkey,false);
+			usedbits.put(key,false);
 		}
 		else{
 			if(set.size() == maxElemsPerSet){
@@ -193,7 +209,7 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param key
 	 * @return	set of the key
 	 */
