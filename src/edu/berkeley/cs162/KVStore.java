@@ -35,6 +35,7 @@ package edu.berkeley.cs162;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -135,39 +136,7 @@ public class KVStore implements KeyValueInterface {
 
         Document doc = generateXmlDocument();
 
-        // try {
-
-        // DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        // DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
-
-        // // create XML document
-        // Document doc = docBuilder.newDocument();
-
-        // // create KVStore root element
-        // Element rootElement = doc.createElement("KVStore");
-        // doc.appendChild(rootElement);
-
-        // // start iterating through KV Pairs
-
-        // for ( String key : store.keySet() ) {
-
-        //     //create KVPair node
-        //     Element kvPair = doc.createElement("KVPair");
-        //     rootElement.appendChild(kvPair);
-
-        //     //create Key node
-        //     Element xmlKey = doc.createElement("Key");
-        //     xmlKey.appendChild(doc.createTextNode(key));
-
-        //     // create Value node
-        //     Element xmlValue = doc.createElement("Value");
-        //     xmlValue.appendChild(doc.createTextNode(store.get(key)));
-
-        //     kvPair.appendChild(xmlKey);
-        //     kvPair.appendChild(xmlValue);
-        // }
-
-        try{
+        try {
 
             // write the content into xml file
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -259,6 +228,9 @@ public class KVStore implements KeyValueInterface {
 
             }
 
+        } catch (FileNotFoundException fe) {
+            System.out.println("Error: file not found in filesystem");
+            return;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -359,5 +331,10 @@ public class KVStore implements KeyValueInterface {
         System.out.println(dataStore.toXML());
 
         // System.out.println("Store: " + dataStore.store);
+
+        System.out.println("\nTesting invalid filename");
+        dataStore.restoreFromFile("invalid.xml");
+
+
     }
 }
