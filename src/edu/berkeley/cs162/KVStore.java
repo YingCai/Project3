@@ -218,13 +218,15 @@ public class KVStore implements KeyValueInterface {
 
             NodeList keyValues = doc.getElementsByTagName("KVPair");
 
+
+            //iterate through the KV Pairs in the xml file
             for (int temp = 0; temp < keyValues.getLength(); temp++) {
 
                 Node node = keyValues.item(temp);
 
                 Element KVPair = (Element) node;
 
-                String key = KVPair.getElementsByTagName("Key").item(0).getTextContent();
+                String key = KVPair.getElementsByTagName("Nonexisting").item(0).getTextContent();
                 String value = KVPair.getElementsByTagName("Value").item(0).getTextContent();
 
                 // System.out.println("Key: " + key);
