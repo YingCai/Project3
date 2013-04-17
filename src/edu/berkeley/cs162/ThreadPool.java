@@ -37,7 +37,7 @@ public class ThreadPool {
 	 */
 	protected WorkerThread threads[] = null;
     protected LinkedList<Runnable> jobs = new LinkedList<Runnable>();
-
+	// private Lock jLock;
 	/**
 	 * Initialize the number of threads required in the threadpool. 
 	 * 
@@ -50,6 +50,7 @@ public class ThreadPool {
 			threads[i] = new WorkerThread(this);
 			threads[i].start();
 		}
+		// jLock = new Lock();
 	}
 
 	/**
@@ -61,11 +62,11 @@ public class ThreadPool {
 	public void addToQueue(Runnable r) throws InterruptedException
 	{
 		try {
-
+			// jLock.acquire();
 			this.jobs.add(r);
     		this.notify();
 		} finally {
-
+			// jLock.release();
 		}
 	}
 	
@@ -93,9 +94,11 @@ class WorkerThread extends Thread {
 	 * 
 	 * @param o the thread pool 
 	 */
+	private ThreadPool threadPool;
+	
 	WorkerThread(ThreadPool o)
 	{
-		this.threadPool = pool;
+		this.threadPool = o;
 	}
 
 	/**
@@ -106,9 +109,7 @@ class WorkerThread extends Thread {
 		while(true) {
     		try {
     			threadPool.getJob().run();
-    		} catch(InterruptedException e){
-    			System.err.println("Error: Job Interrupted!");	
-    		}
+    		} catch(InterruptedException e){}
     	}
 	}
 }

@@ -98,7 +98,7 @@ public class KVClient implements KeyValueInterface {
             if(kvResp.getMessage().equals("Success")) {
                 success = true;
             } else if(kvResp.getKey() == null){
-                throw new KVException(response);
+                throw new KVException(kvResp);
             }
         } catch(IOException io) {
             throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
@@ -108,7 +108,6 @@ public class KVClient implements KeyValueInterface {
             throw new KVException(new KVMessage("resp", "Unknown Error: Put failed"));
 
         this.closeHost(socket);
-
 	}
 
 	public String get(String key) throws KVException {
@@ -116,6 +115,8 @@ public class KVClient implements KeyValueInterface {
         KVMessage kvReq = new KVMessage("getreq");
         kvReq.setKey(key);
         kvReq.sendMessage(socket);
+        String result = "";
+
 
         try {
 			socket.shutdownOutput();
@@ -129,7 +130,7 @@ public class KVClient implements KeyValueInterface {
             if(kvResp.getMessage() != null) {
             	throw new KVException(kvResp);
             }
-            String result = kvResp.getValue();
+            result = kvResp.getValue();
         } catch(IOException io) {
             throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
         }
@@ -153,12 +154,12 @@ public class KVClient implements KeyValueInterface {
 		try {
 			InputStream in = socket.getInputStream();
 			KVMessage kvResp = new KVMessage(in);
+            if(!kvResp.getMessage().equals("Success"))
+                throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
+
 		} catch(IOException io) {
 			throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
 		}
-
-		if(!kvResp.getMessage().equals("Success"))
-			throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
 
         this.closeHost(socket);
 	}
