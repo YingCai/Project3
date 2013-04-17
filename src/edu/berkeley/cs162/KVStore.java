@@ -35,6 +35,7 @@ package edu.berkeley.cs162;
 import java.util.Dictionary;
 import java.util.Hashtable;
 import java.io.File;
+import java.io.StringWriter;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -44,6 +45,7 @@ import javax.xml.transform.TransformerFactory;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import javax.xml.transform.OutputKeys;
+
 
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -72,7 +74,7 @@ public class KVStore implements KeyValueInterface {
 
 		AutoGrader.agStorePutStarted(key, value);
 
-		System.out.println("KVSTORE put called with: " + key + " " + value);
+		// System.out.println("KVSTORE put called with: " + key + " " + value);
 
 		try {
 			putDelay();
@@ -124,65 +126,68 @@ public class KVStore implements KeyValueInterface {
 
 
     public String toXML() {
-        // TODO: implement me
-        return null;
+        Document doc = generateXmlDocument();
+        return KVStore.toString(doc);
     }
+
 
     public void dumpToFile(String fileName) {
 
-        try {
+        Document doc = generateXmlDocument();
 
-        DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+        // try {
 
-        // create XML document
-        Document doc = docBuilder.newDocument();
+        // DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+        // DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
 
-        // create KVStore root element
-        Element rootElement = doc.createElement("KVStore");
-        doc.appendChild(rootElement);
+        // // create XML document
+        // Document doc = docBuilder.newDocument();
 
-        // start iterating through KV Pairs
+        // // create KVStore root element
+        // Element rootElement = doc.createElement("KVStore");
+        // doc.appendChild(rootElement);
 
-        for ( String key : store.keySet() ) {
+        // // start iterating through KV Pairs
 
-            //create KVPair node
-            Element kvPair = doc.createElement("KVPair");
-            rootElement.appendChild(kvPair);
+        // for ( String key : store.keySet() ) {
 
-            //create Key node
-            Element xmlKey = doc.createElement("Key");
-            xmlKey.appendChild(doc.createTextNode(key));
+        //     //create KVPair node
+        //     Element kvPair = doc.createElement("KVPair");
+        //     rootElement.appendChild(kvPair);
 
-            // create Value node
-            Element xmlValue = doc.createElement("Value");
-            xmlValue.appendChild(doc.createTextNode(store.get(key)));
+        //     //create Key node
+        //     Element xmlKey = doc.createElement("Key");
+        //     xmlKey.appendChild(doc.createTextNode(key));
 
-            kvPair.appendChild(xmlKey);
-            kvPair.appendChild(xmlValue);
-        }
+        //     // create Value node
+        //     Element xmlValue = doc.createElement("Value");
+        //     xmlValue.appendChild(doc.createTextNode(store.get(key)));
 
-        // write the content into xml file
-        TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transformer = transformerFactory.newTransformer();
+        //     kvPair.appendChild(xmlKey);
+        //     kvPair.appendChild(xmlValue);
+        // }
 
-        // formatting of the XML document that is written to file
-        transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-        transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
+        try{
 
-        DOMSource source = new DOMSource(doc);
-        StreamResult fileResult = new StreamResult(new File(fileName));
+            // write the content into xml file
+            TransformerFactory transformerFactory = TransformerFactory.newInstance();
+            Transformer transformer = transformerFactory.newTransformer();
 
-        // Output to console for testing
-        StreamResult result = new StreamResult(System.out);
+            // formatting of the XML document that is written to file
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
-        transformer.transform(source, result);
-        transformer.transform(source, fileResult);
+            DOMSource source = new DOMSource(doc);
+            StreamResult fileResult = new StreamResult(new File(fileName));
 
-        // System.out.println("File saved!");
+            // Output to console for testing
+            // StreamResult result = new StreamResult(System.out);
 
-      } catch (ParserConfigurationException pce) {
-            pce.printStackTrace();
+            //transformer.transform(source, result);
+            transformer.transform(source, fileResult);
+
+            // System.out.println("File saved!");
+
       } catch (TransformerException tfe) {
             tfe.printStackTrace();
       }
@@ -259,6 +264,69 @@ public class KVStore implements KeyValueInterface {
         }
     }
 
+    public Document generateXmlDocument() {
+
+        try {
+
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+            // create XML document
+            Document doc = docBuilder.newDocument();
+
+            // create KVStore root element
+            Element rootElement = doc.createElement("KVStore");
+            doc.appendChild(rootElement);
+
+            // start iterating through KV Pairs
+
+            for ( String key : store.keySet() ) {
+
+                //create KVPair node
+                Element kvPair = doc.createElement("KVPair");
+                rootElement.appendChild(kvPair);
+
+                //create Key node
+                Element xmlKey = doc.createElement("Key");
+                xmlKey.appendChild(doc.createTextNode(key));
+
+                // create Value node
+                Element xmlValue = doc.createElement("Value");
+                xmlValue.appendChild(doc.createTextNode(store.get(key)));
+
+                kvPair.appendChild(xmlKey);
+                kvPair.appendChild(xmlValue);
+            }
+
+            return doc;
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+            throw new RuntimeException("Error parsing document");
+        } catch (Exception ex) {
+            throw new RuntimeException("Error generating document");
+        }
+    }
+
+    public static String toString(Document doc) {
+
+        try {
+            StringWriter sw = new StringWriter();
+            TransformerFactory tf = TransformerFactory.newInstance();
+            Transformer transformer = tf.newTransformer();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "no");
+            transformer.setOutputProperty(OutputKeys.METHOD, "xml");
+            transformer.setOutputProperty(OutputKeys.INDENT, "yes");
+            transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
+
+            transformer.transform(new DOMSource(doc), new StreamResult(sw));
+            return sw.toString();
+        } catch (Exception ex) {
+            throw new RuntimeException("Error converting to String", ex);
+        }
+
+    }
+
     public static void main(String[] args) {
         System.out.println("Testing of KVStore");
         KVStore dataStore = new KVStore();
@@ -269,7 +337,7 @@ public class KVStore implements KeyValueInterface {
             e.printStackTrace();
         }
 
-        System.out.println("Dumping file store contents to dump1.xml");
+        System.out.println("\nDumping file store contents to dump1.xml");
         dataStore.dumpToFile("dump1.xml");
 
         System.out.println("\nRestoring file store contents from file.xml");
@@ -277,6 +345,18 @@ public class KVStore implements KeyValueInterface {
 
         System.out.println("\nDumping file store contents to dump2.xml");
         dataStore.dumpToFile("dump2.xml");
+
+
+        dataStore.resetStore();
+
+        try {
+            dataStore.put("toXML","success!");
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        System.out.println("\nTesting toXML() ");
+        System.out.println(dataStore.toXML());
 
         // System.out.println("Store: " + dataStore.store);
     }
