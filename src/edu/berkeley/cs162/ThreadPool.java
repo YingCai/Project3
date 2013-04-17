@@ -29,12 +29,14 @@
  *  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 package edu.berkeley.cs162;
+import java.util.LinkedList;
 
 public class ThreadPool {
 	/**
 	 * Set of threads in the threadpool
 	 */
-	protected Thread threads[] = null;
+	protected WorkerThread threads[] = null;
+    protected LinkedList<Runnable> jobs = new LinkedList<Runnable>();
 
 	/**
 	 * Initialize the number of threads required in the threadpool. 
@@ -43,7 +45,11 @@ public class ThreadPool {
 	 */
 	public ThreadPool(int size)
 	{      
-	    // TODO: implement me
+	    threads = new WorkerThread[size];
+		for(int i=0; i<size; i++) {
+			threads[i] = new WorkerThread(this);
+			threads[i].start();
+		}
 	}
 
 	/**
@@ -54,7 +60,13 @@ public class ThreadPool {
 	 */
 	public void addToQueue(Runnable r) throws InterruptedException
 	{
-	      // TODO: implement me
+		try {
+
+			this.jobs.add(r);
+    		this.notify();
+		} finally {
+
+		}
 	}
 	
 	/** 
@@ -63,8 +75,12 @@ public class ThreadPool {
 	 * @throws InterruptedException 
 	 */
 	public synchronized Runnable getJob() throws InterruptedException {
-	      // TODO: implement me
-	    return null;
+	    Runnable job;
+	    while(jobs.size() == 0) {
+            this.wait();
+        }
+        job = jobs.remove();
+        return job;
 	}
 }
 
@@ -79,14 +95,20 @@ class WorkerThread extends Thread {
 	 */
 	WorkerThread(ThreadPool o)
 	{
-	     // TODO: implement me
+		this.threadPool = pool;
 	}
 
 	/**
 	 * Scan for and execute tasks.
 	 */
 	public void run()
-	{
-	      // TODO: implement me
+	{	
+		while(true) {
+    		try {
+    			threadPool.getJob().run();
+    		} catch(InterruptedException e){
+    			System.err.println("Error: Job Interrupted!");	
+    		}
+    	}
 	}
 }
