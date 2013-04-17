@@ -31,6 +31,8 @@
 package edu.berkeley.cs162;
 
 import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.*;
 
 
 /**
@@ -41,15 +43,30 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 public class KVCache implements KeyValueInterface {	
 	private int numSets = 100;
 	private int maxElemsPerSet = 10;
-		
+
+	private int maxKey = 256;
+	private int maxVal = 262144;
+
+	//private ReentrantReadWriteLock.WriteLock[] setlocks;
+	private LinkedList<String>[] sets;
+	private HashMap<String,Boolean> usedbits = new HashMap<String,Boolean>();
+	private HashMap<String,String> contents = new HashMap<String,String>();
+	private HashMap<String,Boolean> validbits = new HashMap<String,Boolean>();
+	private ReentrantReadWriteLock[] setlocks;
+
 	/**
 	 * Creates a new LRU cache.
 	 * @param cacheSize	the maximum number of entries that will be kept in this cache.
 	 */
 	public KVCache(int numSets, int maxElemsPerSet) {
-		this.numSets = numSets;
-		this.maxElemsPerSet = maxElemsPerSet;     
+		numSets = numSets;
+		maxElemsPerSet = maxElemsPerSet;
+		sets = (LinkedList<String>[]) new LinkedList[numSets];
 		// TODO: Implement Me!
+		for (int i = 0 ; i < numSets ; i++){
+			setlocks[i] = new ReentrantReadWriteLock();
+			sets[i] = new LinkedList<String>();
+		}
 	}
 
 	/**
@@ -62,12 +79,22 @@ public class KVCache implements KeyValueInterface {
 		// Must be called before anything else
 		AutoGrader.agCacheGetStarted(key);
 		AutoGrader.agCacheGetDelay();
-        
 		// TODO: Implement Me!
-		
+
+		String retval = null;
+		int setId = getSetId(key);
+		LinkedList set = sets[setId];
+
+		if (set.contains(key)){
+			set.remove(key);
+			set.add(key);
+			usedbits.put(key,true);
+			retval = contents.get(key);
+		}
+
 		// Must be called before returning
 		AutoGrader.agCacheGetFinished(key);
-		return null;
+		return retval;
 	}
 
 	/**
@@ -84,8 +111,49 @@ public class KVCache implements KeyValueInterface {
 		AutoGrader.agCachePutStarted(key, value);
 		AutoGrader.agCachePutDelay();
 
-		// TODO: Implement Me!
-		
+		if (key.length() > maxKey || value.length() > maxVal ){
+			System.out.println("The key or Value is too big!!!");
+		}
+
+		int setId = getSetId(key);
+		LinkedList set = sets[setId];
+
+		if (set.contains(key)){
+			set.remove(key);
+			set.add(key);
+			contents.put(key,value);
+			usedbits.put(oldkey,false);
+		}
+		else{
+			if(set.size() == maxElemsPerSet){
+				boolean finished = false;
+				for (int i = 0 ; i < maxElemsPerSet ; i++){
+					String oldkey = (String)set.get(i);
+					if(!usedbits.get(oldkey)){
+						finished = true;
+						set.remove(oldkey);
+						set.add(key);
+						contents.remove(oldkey);
+						contents.put(key, value);
+						break;
+					}
+				}
+				if (!finished){
+					String oldkey = (String)set.get(0);
+					usedbits.put(oldkey,false);
+					set.remove(oldkey);
+					set.add(key);
+					contents.remove(oldkey);
+					contents.put(key, value);
+				}
+			}
+			else{
+				set.add(key);
+				usedbits.put(key,false);
+				contents.put(key,value);
+			}
+		}
+
 		// Must be called before returning
 		AutoGrader.agCachePutFinished(key, value);
 	}
@@ -99,22 +167,31 @@ public class KVCache implements KeyValueInterface {
 		// Must be called before anything else
 		AutoGrader.agCacheGetStarted(key);
 		AutoGrader.agCacheDelDelay();
-		
+
 		// TODO: Implement Me!
-		
+		int setId = getSetId(key);
+		LinkedList set = sets[setId];
+
+		if (set.contains(key)){
+			set.remove(key);
+			usedbits.put(key,false);
+			contents.remove(key);
+		}
+
 		// Must be called before returning
 		AutoGrader.agCacheDelFinished(key);
 	}
-	
+
 	/**
 	 * @param key
 	 * @return	the write lock of the set that contains key.
 	 */
 	public WriteLock getWriteLock(String key) {
-	    // TODO: Implement Me!
-	    return null;
+		// TODO: Implement Me!
+		int setId = getSetId(key);
+		return setlocks[setId].writeLock();
 	}
-	
+
 	/**
 	 * 
 	 * @param key
@@ -123,9 +200,9 @@ public class KVCache implements KeyValueInterface {
 	private int getSetId(String key) {
 		return Math.abs(key.hashCode()) % numSets;
 	}
-	
-    public String toXML() {
-        // TODO: Implement Me!
-        return null;
-    }
+
+	public String toXML() {
+		// TODO: Implement Me!
+		return null;
+	}
 }
