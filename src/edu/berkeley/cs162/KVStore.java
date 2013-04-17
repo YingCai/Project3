@@ -206,18 +206,26 @@ public class KVStore implements KeyValueInterface {
 
             String rootElement = doc.getDocumentElement().getNodeName();
 
-            System.out.println("Root Element: " + rootElement);
+            // System.out.println("Root Element: " + rootElement);
 
+            // TODO: Change print statement into exception
             if (rootElement != "KVStore") {
                 System.out.println("Root element does not equal KVStore");
-                throw new KVException(null);
+                return;
             }
+
+            // attempt to get all the KVPairs in the xml document
+            NodeList keyValues = doc.getElementsByTagName("KVPair");
+
+            // TODO: Change print statement into exception
+            if (keyValues.getLength() == 0) {
+                System.out.println("KVPair node not present in document for restoreFromFile");
+                return;
+            }
+
 
             //reset the store in preparation for iterating through XML
             store.clear();
-
-            NodeList keyValues = doc.getElementsByTagName("KVPair");
-
 
             //iterate through the KV Pairs in the xml file
             for (int temp = 0; temp < keyValues.getLength(); temp++) {
@@ -226,8 +234,18 @@ public class KVStore implements KeyValueInterface {
 
                 Element KVPair = (Element) node;
 
-                String key = KVPair.getElementsByTagName("Nonexisting").item(0).getTextContent();
-                String value = KVPair.getElementsByTagName("Value").item(0).getTextContent();
+                Node keyNode = KVPair.getElementsByTagName("Key").item(0);
+                Node valueNode = KVPair.getElementsByTagName("Value").item(0);
+
+                // no XML tags that match key or value
+                // TODO: Change print statement into exception
+                if (keyNode == null || valueNode == null) {
+                    System.out.println("Not valid XML document for restoreFromFile");
+                    return;
+                }
+
+                String value = keyNode.getTextContent();
+                String key = valueNode.getTextContent();
 
                 // System.out.println("Key: " + key);
                 // System.out.println("Value: " + value);
@@ -235,7 +253,7 @@ public class KVStore implements KeyValueInterface {
                 store.put(key, value);
 
             }
-            // System.out.println("Root Element: " + rootElement);
+
 
         } catch (Exception e) {
             e.printStackTrace();
