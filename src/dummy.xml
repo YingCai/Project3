@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <KVStore>
   <KVPair>
-    <Key>Test Key</Key>
-    <Value>Test Value</Value>
+    <Key>5</Key>
+    <Value>5</Value>
   </KVPair>
   <KVPair>
-    <Key>Test Key 1 </Key>
-    <Value>Test Value 1</Value>
+    <Key>3</Key>
+    <Value>7</Value>
   </KVPair>
 </KVStore>

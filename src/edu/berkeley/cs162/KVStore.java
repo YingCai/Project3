@@ -171,7 +171,7 @@ public class KVStore implements KeyValueInterface {
         transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
 
         DOMSource source = new DOMSource(doc);
-        StreamResult fileResult = new StreamResult(new File("file.xml"));
+        StreamResult fileResult = new StreamResult(new File(fileName));
 
         // Output to console for testing
         StreamResult result = new StreamResult(System.out);
@@ -214,7 +214,7 @@ public class KVStore implements KeyValueInterface {
             }
 
             //reset the store in preparation for iterating through XML
-            dataStore.clear();
+            store.clear();
 
             NodeList keyValues = doc.getElementsByTagName("KVPair");
 
@@ -227,14 +227,10 @@ public class KVStore implements KeyValueInterface {
                 String key = KVPair.getElementsByTagName("Key").item(0).getTextContent();
                 String value = KVPair.getElementsByTagName("Value").item(0).getTextContent();
 
-                System.out.println("Key: " + key);
-                System.out.println("Value: " + value);
+                // System.out.println("Key: " + key);
+                // System.out.println("Value: " + value);
 
-
-
-                // System.out.println("\nCurrent Element :" + node.getNodeName());
-
-
+                store.put(key, value);
 
             }
             // System.out.println("Root Element: " + rootElement);
@@ -254,8 +250,14 @@ public class KVStore implements KeyValueInterface {
             e.printStackTrace();
         }
 
-        dataStore.dumpToFile("dummy");
+        System.out.println("Dumping file store contents to dummy.xml");
+        dataStore.dumpToFile("dummy.xml");
+
+        System.out.println("\nRestoring file store contents from file.xml");
         dataStore.restoreFromFile("file.xml");
+
+        System.out.println("\nDumping file store contents to dummy1.xml");
+        dataStore.dumpToFile("dummy1.xml");
 
         // System.out.println("Store: " + dataStore.store);
     }
