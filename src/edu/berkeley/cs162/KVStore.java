@@ -254,7 +254,6 @@ public class KVStore implements KeyValueInterface {
 
             }
 
-
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -270,14 +269,14 @@ public class KVStore implements KeyValueInterface {
             e.printStackTrace();
         }
 
-        System.out.println("Dumping file store contents to dummy.xml");
-        dataStore.dumpToFile("dummy.xml");
+        System.out.println("Dumping file store contents to dump1.xml");
+        dataStore.dumpToFile("dump1.xml");
 
         System.out.println("\nRestoring file store contents from file.xml");
         dataStore.restoreFromFile("file.xml");
 
-        System.out.println("\nDumping file store contents to dummy1.xml");
-        dataStore.dumpToFile("dummy1.xml");
+        System.out.println("\nDumping file store contents to dump2.xml");
+        dataStore.dumpToFile("dump2.xml");
 
         // System.out.println("Store: " + dataStore.store);
     }
