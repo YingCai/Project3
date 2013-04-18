@@ -253,7 +253,7 @@ public class KVCache implements KeyValueInterface {
             	// iterate through the valid entires in the cache
             	for (int i = 0; i < listSize; i++) {
 
-            		Element cacheEntry = doc.createElement("KVCache");
+            		Element cacheEntry = doc.createElement("CacheEntry");
             		setNode.appendChild(cacheEntry);
 
             		String key = set.get(i);
@@ -275,7 +275,7 @@ public class KVCache implements KeyValueInterface {
             	// iterate through the invalid entries in the cache
             	for (int i = 0; i < (maxElemsPerSet - listSize); i++) {
 
-            		Element cacheEntry = doc.createElement("KVCache");
+            		Element cacheEntry = doc.createElement("CacheEntry");
             		setNode.appendChild(cacheEntry);
 
             		cacheEntry.setAttribute("isReferenced", "false");
