@@ -52,7 +52,6 @@ import org.w3c.dom.Attr;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
-
 /**
  * A set-associate cache which has a fixed maximum number of sets (numSets).
  * Each set has a maximum number of elements (MAX_ELEMS_PER_SET).
@@ -225,6 +224,7 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	public String toXML() {
+<<<<<<< HEAD
 
 		try {
 
@@ -317,5 +317,4 @@ public class KVCache implements KeyValueInterface {
 		System.out.println(cache.toXML());
 
 	}
-
 }
