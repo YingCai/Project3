@@ -103,8 +103,8 @@ public class KVClient implements KeyValueInterface {
             throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
         }
         
-        if(!success)
-            throw new KVException(new KVMessage("resp", "Unknown Error: Put failed"));
+        // if(!success)
+        //     throw new KVException(new KVMessage("resp", "Unknown Error: Put failed"));
 
         this.closeHost(socket);
 	}
@@ -149,15 +149,15 @@ public class KVClient implements KeyValueInterface {
 			throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
 		}
 
-		try {
-			InputStream in = socket.getInputStream();
-			KVMessage kvResp = new KVMessage(in);
-            if(!kvResp.getMessage().equals("Success"))
-                throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
+		// try {
+		// 	InputStream in = socket.getInputStream();
+		// 	KVMessage kvResp = new KVMessage(in);
+  //           if(!kvResp.getMessage().equals("Success"))
+  //               throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
 
-		} catch(IOException io) {
-			throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
-		}
+		// } catch(IOException io) {
+		// 	throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
+		// }
 
         this.closeHost(socket);
 	}	
