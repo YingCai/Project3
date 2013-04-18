@@ -62,7 +62,50 @@ public class KVClientHandler implements NetworkHandler {
 		
 		@Override
 		public void run() {
-		     // TODO: Implement Me!
+		     try {
+				KVMessage ping = new KVMessage(client.getInputStream());
+				KVMessage pong = new KVMessage("resp");
+				if(ping.getMsgType().equals("getreq")){
+					try{
+						pong.setValue(kvServer.get(ping.getKey()));
+						pong.setKey(ping.getKey());
+					} catch(KVException kve){
+						pong.setMessage("Unknown Error: Some problem with get");
+					} finally{
+						pong.sendMessage(client);
+					}
+				} else if(ping.getMsgType().equals("putreq")){
+					try{
+						kvServer.put(ping.getKey(), ping.getValue());
+						pong.setMessage("Success");
+					} catch(KVException kve){
+						pong.setMessage("Unknown Error: Some problem with set");
+					} finally{
+						pong.sendMessage(client);
+					}
+				} else if(ping.getMsgType().equals("delreq")){
+					try{
+						kvServer.del(ping.getKey());
+						pong.setMessage("Success");
+					} catch(KVException kve){
+						pong.setMessage("Unknown Error: Some problem with del");
+					} finally{
+						pong.sendMessage(client);
+					}
+				} else {
+					pong.setMessage("Unknown Error: Bad request!");
+					pong.sendMessage(client);
+				}
+			} catch (Exception e) {
+				System.out.println("Problem handling client!");
+				e.printStackTrace();
+				try {
+					client.close();
+				} catch (IOException e1) {
+					System.out.println("Derp. Problem closing client connection.");
+					e1.printStackTrace();
+				}
+			}
 		}
 		
 		public ClientHandler(KVServer kvServer, Socket client) {
