@@ -1,7 +1,6 @@
 package edu.berkeley.cs162;
 
 import static org.junit.Assert.*;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -83,7 +82,7 @@ public class ThreadPool_Test {
 
 		Timer timer = new Timer();
 		timer.schedule(new failure(), 1000);
-		while(tasksCompleted < 3){}
+		while(tasksCompleted < 8){}
 		timer.cancel();
 		System.out.println();
 	}
@@ -108,7 +107,7 @@ public class ThreadPool_Test {
 
 		Timer timer = new Timer();
 		timer.schedule(new failure(), 1000);
-		while(tasksCompleted < 3){}
+		while(tasksCompleted < 5){}
 		timer.cancel();
 		System.out.println();
 	}
