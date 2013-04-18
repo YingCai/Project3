@@ -122,7 +122,7 @@ public class KVCache implements KeyValueInterface {
 			set.remove(key);
 			set.add(key);
 			contents.put(key,value);
-			usedbits.put(oldkey,false);
+			usedbits.put(key,false);
 		}
 		else{
 			if(set.size() == maxElemsPerSet){
