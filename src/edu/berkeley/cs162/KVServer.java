@@ -59,30 +59,57 @@ public class KVServer implements KeyValueInterface {
 		// Must be called before anything else
 		AutoGrader.agKVServerPutStarted(key, value);
 
-		// TODO: implement me
-
-		// Must be called before return or abnormal exit
-		AutoGrader.agKVServerPutFinished(key, value);
+		try{
+			dataCache.getWriteLock(key).lock();
+			dataCache.put(key, value);
+			dataStore.put(key, value);
+		} catch(KVException kve) {
+			throw kve;
+		} finally{
+			dataCache.getWriteLock(key).unlock();
+			// Must be called before return or abnormal exit
+			AutoGrader.agKVServerPutFinished(key, value);
+		}
 	}
 	
 	public String get (String key) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerGetStarted(key);
 
-		// TODO: implement me
+		dataCache.getWriteLock(key).lock();
+		String value = dataCache.get(key);
+		if (value==null){
+			try{
+				dataCache.put(key, dataStore.get(key));
+				dataCache.getWriteLock(key).unlock();
+				return value;
+			} catch(KVException kve) {
+				throw kve;
+			} finally{
+				dataCache.getWriteLock(key).unlock();
+				AutoGrader.agKVServerGetFinished(key);
+			}
+		}
 
 		// Must be called before return or abnormal exit
 		AutoGrader.agKVServerGetFinished(key);
-		return null;
+		return value;
 	}
 	
 	public void del (String key) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerDelStarted(key);
 
-		// TODO: implement me
-
-		// Must be called before return or abnormal exit
-		AutoGrader.agKVServerDelFinished(key);
+		dataCache.getWriteLock(key).lock();
+		try{
+			dataCache.del(key);
+			dataStore.del(key);
+		} catch(KVException kve) {
+			throw kve;
+		} finally{
+			dataCache.getWriteLock(key).unlock();
+			// Must be called before return or abnormal exit
+			AutoGrader.agKVServerDelFinished(key);
+		}
 	}
 }
