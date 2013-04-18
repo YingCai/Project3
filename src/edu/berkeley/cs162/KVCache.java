@@ -129,10 +129,6 @@ public class KVCache implements KeyValueInterface {
 		AutoGrader.agCachePutStarted(key, value);
 		AutoGrader.agCachePutDelay();
 
-		if (key.length() > maxKey || value.length() > maxVal ){
-			System.out.println("The key or Value is too big!!!");
-		}
-
 		int setId = getSetId(key);
 		LinkedList set = sets[setId];
 
@@ -147,21 +143,30 @@ public class KVCache implements KeyValueInterface {
 				boolean finished = false;
 				for (int i = 0 ; i < maxElemsPerSet ; i++){
 					String oldkey = (String)set.get(i);
-					if(!usedbits.get(oldkey)){
-						finished = true;
-						set.remove(oldkey);
-						set.add(key);
-						contents.remove(oldkey);
-						contents.put(key, value);
-						break;
+					try{
+						if(!usedbits.get(oldkey)){
+							finished = true;
+							set.remove(oldkey);
+							set.add(key);
+							usedbits.put(oldkey,false);
+							contents.remove(oldkey);
+							usedbits.put(key, false);
+							contents.put(key, value);
+							break;
+						}
+					}
+					catch(Exception e){
+						System.out.println(e + " , " + oldkey + " , " + usedbits.get(oldkey));
+						System.exit(0);
 					}
 				}
 				if (!finished){
 					String oldkey = (String)set.get(0);
-					usedbits.put(oldkey,false);
 					set.remove(oldkey);
 					set.add(key);
+					usedbits.put(oldkey,false);
 					contents.remove(oldkey);
+					usedbits.put(key, false);
 					contents.put(key, value);
 				}
 			}
