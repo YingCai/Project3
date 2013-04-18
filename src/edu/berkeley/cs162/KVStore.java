@@ -230,7 +230,6 @@ public class KVStore implements KeyValueInterface {
 
         } catch (FileNotFoundException fe) {
             System.out.println("Error: file not found in filesystem");
-            return;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -336,6 +335,10 @@ public class KVStore implements KeyValueInterface {
         System.out.println("\nTesting invalid filename");
         dataStore.restoreFromFile("invalid.xml");
 
+        dataStore.resetStore();
+
+        String emptyStore = dataStore.toXML();
+        System.out.println("Empty Store: \n" + emptyStore);
 
     }
 }
