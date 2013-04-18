@@ -1,9 +1,9 @@
 /**
- * Sample instantiation of the Key-Value client  
- * 
+ * Sample instantiation of the Key-Value client
+ *
  * @author Mosharaf Chowdhury (http://www.mosharaf.com)
  * @author Prashanth Mohan (http://www.cs.berkeley.edu/~prmohan)
- * 
+ *
  * Copyright (c) 2012, University of California at Berkeley
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *  * Neither the name of University of California, Berkeley nor the
  *    names of its contributors may be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *    
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -37,10 +37,11 @@ import edu.berkeley.cs162.KVClient;
 public class Client {
 	/**
 	 * @param args
-	 * @throws IOException 
+	 * @throws IOException
 	 */
 	public static void main(String[] args) throws IOException {
 		KVClient kc = new KVClient("localhost", 8080);
+
 		try{
 			String three = "3";
 			String seven = "7";
@@ -51,11 +52,12 @@ public class Client {
 			System.out.println("putting (3, 7) (again)");
 			kc.put(three, seven);
 			System.out.println("ok");
-			
-			System.out.println("getting key=3");			
-			String value = kc.get(three);					
+
+			System.out.println("getting key=3");
+			String value = kc.get(three);
 			System.out.println("returned: " + value);
 			kc.del(three);
+
 		}catch(Exception e){
 			e.printStackTrace();
 		}

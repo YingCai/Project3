@@ -1,9 +1,9 @@
 /**
  * Implementation of a set-associative cache.
- * 
+ *
  * @author Mosharaf Chowdhury (http://www.mosharaf.com)
  * @author Prashanth Mohan (http://www.cs.berkeley.edu/~prmohan)
- * 
+ *
  * Copyright (c) 2012, University of California at Berkeley
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *  * Neither the name of University of California, Berkeley nor the
  *    names of its contributors may be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *    
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -34,13 +34,30 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.*;
 
+import java.io.StringWriter;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.OutputKeys;
+
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.w3c.dom.Attr;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * A set-associate cache which has a fixed maximum number of sets (numSets).
  * Each set has a maximum number of elements (MAX_ELEMS_PER_SET).
  * If a set is full and another entry is added, an entry is dropped based on the eviction policy.
  */
-public class KVCache implements KeyValueInterface {	
+public class KVCache implements KeyValueInterface {
 	private int numSets = 100;
 	private int maxElemsPerSet = 10;
 
@@ -104,7 +121,7 @@ public class KVCache implements KeyValueInterface {
 	 * Assumes the corresponding set has already been locked for writing.
 	 * @param key	the key with which the specified value is to be associated.
 	 * @param value	a value to be associated with the specified key.
-	 * @return true is something has been overwritten 
+	 * @return true is something has been overwritten
 	 */
 	public void put(String key, String value) {
 		// Must be called before anything else
@@ -198,7 +215,7 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	/**
-	 * 
+	 *
 	 * @param key
 	 * @return	set of the key
 	 */
@@ -207,7 +224,97 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	public String toXML() {
-		// TODO: Implement Me!
-		return null;
+<<<<<<< HEAD
+
+		try {
+
+            DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = docFactory.newDocumentBuilder();
+
+            // create XML document
+            Document doc = docBuilder.newDocument();
+
+            // create KVCache root element
+            Element rootElement = doc.createElement("KVCache");
+            doc.appendChild(rootElement);
+
+            int count = 0;
+
+            //iterate through the sets
+            for (LinkedList<String> set : sets) {
+
+            	Element setNode = doc.createElement("Set");
+            	setNode.setAttribute("id", Integer.toString(count));
+            	rootElement.appendChild(setNode);
+            	count = count + 1;
+
+            	int listSize = set.size();
+
+            	// iterate through the valid entires in the cache
+            	for (int i = 0; i < listSize; i++) {
+
+            		Element cacheEntry = doc.createElement("CacheEntry");
+            		setNode.appendChild(cacheEntry);
+
+            		String key = set.get(i);
+            		boolean isReferenced = usedbits.get(key);
+
+            		cacheEntry.setAttribute("isReferenced", String.valueOf(isReferenced));
+            		cacheEntry.setAttribute("isValid", "true");
+
+            		Element keyNode = doc.createElement("Key");
+            		Element valueNode = doc.createElement("Value");
+
+            		keyNode.appendChild(doc.createTextNode(key));
+            		valueNode.appendChild(doc.createTextNode(contents.get(key)));
+
+            		cacheEntry.appendChild(keyNode);
+            		cacheEntry.appendChild(valueNode);
+            	}
+
+            	// iterate through the invalid entries in the cache
+            	for (int i = 0; i < (maxElemsPerSet - listSize); i++) {
+
+            		Element cacheEntry = doc.createElement("CacheEntry");
+            		setNode.appendChild(cacheEntry);
+
+            		cacheEntry.setAttribute("isReferenced", "false");
+            		cacheEntry.setAttribute("isValid", "false");
+
+            		Element keyNode = doc.createElement("Key");
+            		Element valueNode = doc.createElement("Value");
+
+            		cacheEntry.appendChild(keyNode);
+            		cacheEntry.appendChild(valueNode);
+            	}
+            }
+
+            return KVStore.toString(doc);
+
+        } catch (ParserConfigurationException pce) {
+            pce.printStackTrace();
+            throw new RuntimeException("Error parsing document");
+        }
+
+
+
+	}
+
+	public static void main (String[] args) {
+
+		// System.out.println("TESTING KVCACHE");
+		KVCache cache = new KVCache(100, 10);
+
+		for (int i = 0; i < 50; i++) {
+			cache.put(Integer.toString(i), Integer.toString(i*2));
+		}
+
+		cache.get("0");
+		cache.get("1");
+		cache.get("2");
+
+		// System.out.println("\ncalling toXML()");
+		System.out.println(cache.toXML());
+
 	}
 }

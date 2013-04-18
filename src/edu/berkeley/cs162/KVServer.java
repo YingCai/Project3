@@ -1,9 +1,9 @@
 /**
  * Slave Server component of a KeyValue store
- * 
+ *
  * @author Mosharaf Chowdhury (http://www.mosharaf.com)
  * @author Prashanth Mohan (http://www.cs.berkeley.edu/~prmohan)
- * 
+ *
  * Copyright (c) 2012, University of California at Berkeley
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -16,7 +16,7 @@
  *  * Neither the name of University of California, Berkeley nor the
  *    names of its contributors may be used to endorse or promote products
  *    derived from this software without specific prior written permission.
- *    
+ *
  *  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
  *  ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
  *  WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
@@ -31,20 +31,20 @@
 package edu.berkeley.cs162;
 
 /**
- * This class defines the slave key value servers. Each individual KVServer 
- * would be a fully functioning Key-Value server. For Project 3, you would 
- * implement this class. For Project 4, you will have a Master Key-Value server 
- * and multiple of these slave Key-Value servers, each of them catering to a 
+ * This class defines the slave key value servers. Each individual KVServer
+ * would be a fully functioning Key-Value server. For Project 3, you would
+ * implement this class. For Project 4, you will have a Master Key-Value server
+ * and multiple of these slave Key-Value servers, each of them catering to a
  * different part of the key namespace.
  *
  */
 public class KVServer implements KeyValueInterface {
 	private KVStore dataStore = null;
 	private KVCache dataCache = null;
-	
+
 	private static final int MAX_KEY_SIZE = 256;
 	private static final int MAX_VAL_SIZE = 256 * 1024;
-	
+
 	/**
 	 * @param numSets number of sets in the data Cache.
 	 */
@@ -54,35 +54,64 @@ public class KVServer implements KeyValueInterface {
 
 		AutoGrader.registerKVServer(dataStore, dataCache);
 	}
-	
+
+
 	public void put(String key, String value) throws KVException {
+
 		// Must be called before anything else
 		AutoGrader.agKVServerPutStarted(key, value);
 
-		// TODO: implement me
-
-		// Must be called before return or abnormal exit
-		AutoGrader.agKVServerPutFinished(key, value);
+		try{
+			dataCache.getWriteLock(key).lock();
+			dataCache.put(key, value);
+			dataStore.put(key, value);
+		} catch(KVException kve) {
+			throw kve;
+		} finally{
+			dataCache.getWriteLock(key).unlock();
+			// Must be called before return or abnormal exit
+			AutoGrader.agKVServerPutFinished(key, value);
+		}
 	}
-	
+
 	public String get (String key) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerGetStarted(key);
 
-		// TODO: implement me
+		dataCache.getWriteLock(key).lock();
+		String value = dataCache.get(key);
+		if (value==null){
+			try{
+				dataCache.put(key, dataStore.get(key));
+				dataCache.getWriteLock(key).unlock();
+				return value;
+			} catch(KVException kve) {
+				throw kve;
+			} finally{
+				dataCache.getWriteLock(key).unlock();
+				AutoGrader.agKVServerGetFinished(key);
+			}
+		}
 
 		// Must be called before return or abnormal exit
 		AutoGrader.agKVServerGetFinished(key);
-		return null;
+		return value;
 	}
-	
+
 	public void del (String key) throws KVException {
 		// Must be called before anything else
 		AutoGrader.agKVServerDelStarted(key);
 
-		// TODO: implement me
-
-		// Must be called before return or abnormal exit
-		AutoGrader.agKVServerDelFinished(key);
+		dataCache.getWriteLock(key).lock();
+		try{
+			dataCache.del(key);
+			dataStore.del(key);
+		} catch(KVException kve) {
+			throw kve;
+		} finally{
+			dataCache.getWriteLock(key).unlock();
+			// Must be called before return or abnormal exit
+			AutoGrader.agKVServerDelFinished(key);
+		}
 	}
 }
