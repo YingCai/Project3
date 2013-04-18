@@ -248,11 +248,39 @@ public class KVCache implements KeyValueInterface {
             	// iterate through the valid entires in the cache
             	for (int i = 0; i < listSize; i++) {
 
+            		Element cacheEntry = doc.createElement("KVCache");
+            		setNode.appendChild(cacheEntry);
+
+            		String key = set.get(i);
+            		boolean isReferenced = usedbits.get(key);
+
+            		cacheEntry.setAttribute("isReferenced", String.valueOf(isReferenced));
+            		cacheEntry.setAttribute("isValid", "true");
+
+            		Element keyNode = doc.createElement("Key");
+            		Element valueNode = doc.createElement("Value");
+
+            		keyNode.appendChild(doc.createTextNode(key));
+            		valueNode.appendChild(doc.createTextNode(contents.get(key)));
+
+            		cacheEntry.appendChild(keyNode);
+            		cacheEntry.appendChild(valueNode);
             	}
 
             	// iterate through the invalid entries in the cache
             	for (int i = 0; i < (maxElemsPerSet - listSize); i++) {
 
+            		Element cacheEntry = doc.createElement("KVCache");
+            		setNode.appendChild(cacheEntry);
+
+            		cacheEntry.setAttribute("isReferenced", "false");
+            		cacheEntry.setAttribute("isValid", "false");
+
+            		Element keyNode = doc.createElement("Key");
+            		Element valueNode = doc.createElement("Value");
+
+            		cacheEntry.appendChild(keyNode);
+            		cacheEntry.appendChild(valueNode);
             	}
             }
 
@@ -272,7 +300,9 @@ public class KVCache implements KeyValueInterface {
 		System.out.println("TESTING KVCACHE");
 		KVCache cache = new KVCache(100, 10);
 
-		cache.put("5", "5");
+		for (int i = 0; i < 50; i++) {
+			cache.put(Integer.toString(i), Integer.toString(i*2));
+		}
 
 		System.out.println("\ncalling toXML()");
 		System.out.println(cache.toXML());
