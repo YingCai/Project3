@@ -102,7 +102,7 @@ public class KVClient implements KeyValueInterface {
         } catch(IOException io) {
             throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
         }
-        
+
         // if(!success)
         //     throw new KVException(new KVMessage("resp", "Unknown Error: Put failed"));
 
@@ -149,16 +149,55 @@ public class KVClient implements KeyValueInterface {
             throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
         }
 
-		// try {
-		// 	InputStream in = socket.getInputStream();
-		// 	KVMessage kvResp = new KVMessage(in);
-  //           if(!kvResp.getMessage().equals("Success"))
-  //               throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
+		try {
+			InputStream in = socket.getInputStream();
+			KVMessage kvResp = new KVMessage(in);
+            if(!kvResp.getMessage().equals("Success"))
+                throw new KVException(new KVMessage("resp", "Does not exist"));
 
-		// } catch(IOException io) {
-		// 	throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
-		// }
+		} catch(IOException io) {
+			throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
+		}
 
         this.closeHost(socket);
+    }
+
+    public boolean connectTest(){
+        try {
+            KVServer kvserver = new KVServer(100, 10);
+            SocketServer sserver = new SocketServer("localhost", 8080);
+            Thread server = new Thread(new runServer(kvserver, sserver));
+            server.start();
+            Socket socket = this.connectHost();
+            sserver.stop();
+            server.stop();
+            while(server.isAlive()){
+                Thread.currentThread().yield();
+            }
+            return socket.isConnected();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return false;
+        }
+    }
+    
+    public boolean closeTest(){
+        try {
+            KVServer kvserver = new KVServer(100, 10);
+            SocketServer sserver = new SocketServer("localhost", 8080);
+            Thread server = new Thread(new runServer(kvserver, sserver));
+            server.start(); 
+            Socket socket = this.connectHost();
+            this.closeHost(s);
+            sserver.stop();
+            server.stop();
+            while(server.isAlive()){
+                Thread.currentThread().yield();
+            }
+            return socket.isClosed();
+        } catch (Exception e){
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 }
