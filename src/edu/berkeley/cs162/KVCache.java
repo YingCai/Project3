@@ -229,18 +229,41 @@ public class KVCache implements KeyValueInterface {
             // create XML document
             Document doc = docBuilder.newDocument();
 
-            // create KVStore root element
+            // create KVCache root element
             Element rootElement = doc.createElement("KVCache");
             doc.appendChild(rootElement);
+
+            int count = 0;
+
+            //iterate through the sets
+            for (LinkedList<String> set : sets) {
+
+            	Element setNode = doc.createElement("Set");
+            	setNode.setAttribute("id", Integer.toString(count));
+            	rootElement.appendChild(setNode);
+            	count = count + 1;
+
+            	int listSize = set.size();
+
+            	// iterate through the valid entires in the cache
+            	for (int i = 0; i < listSize; i++) {
+
+            	}
+
+            	// iterate through the invalid entries in the cache
+            	for (int i = 0; i < (maxElemsPerSet - listSize); i++) {
+
+            	}
+            }
 
             return KVStore.toString(doc);
 
         } catch (ParserConfigurationException pce) {
             pce.printStackTrace();
             throw new RuntimeException("Error parsing document");
-        } catch (Exception ex) {
-            throw new RuntimeException("Error generating document");
         }
+
+
 
 	}
 
@@ -248,6 +271,8 @@ public class KVCache implements KeyValueInterface {
 
 		System.out.println("TESTING KVCACHE");
 		KVCache cache = new KVCache(100, 10);
+
+		cache.put("5", "5");
 
 		System.out.println("\ncalling toXML()");
 		System.out.println(cache.toXML());
