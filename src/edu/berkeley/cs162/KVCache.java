@@ -77,8 +77,8 @@ public class KVCache implements KeyValueInterface {
 	 * @param cacheSize	the maximum number of entries that will be kept in this cache.
 	 */
 	public KVCache(int numSets, int maxElemsPerSet) {
-		numSets = numSets;
-		maxElemsPerSet = maxElemsPerSet;
+		this.numSets = numSets;
+		this.maxElemsPerSet = maxElemsPerSet;
 		sets = (LinkedList<String>[]) new LinkedList[numSets];
 		// TODO: Implement Me!
 		for (int i = 0 ; i < numSets ; i++){
@@ -297,14 +297,18 @@ public class KVCache implements KeyValueInterface {
 
 	public static void main (String[] args) {
 
-		System.out.println("TESTING KVCACHE");
+		// System.out.println("TESTING KVCACHE");
 		KVCache cache = new KVCache(100, 10);
 
 		for (int i = 0; i < 50; i++) {
 			cache.put(Integer.toString(i), Integer.toString(i*2));
 		}
 
-		System.out.println("\ncalling toXML()");
+		cache.get("0");
+		cache.get("1");
+		cache.get("2");
+
+		// System.out.println("\ncalling toXML()");
 		System.out.println(cache.toXML());
 
 	}
