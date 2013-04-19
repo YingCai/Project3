@@ -75,8 +75,6 @@ public class KVStore implements KeyValueInterface {
 
 		AutoGrader.agStorePutStarted(key, value);
 
-		// System.out.println("KVSTORE put called with: " + key + " " + value);
-
 		try {
 			putDelay();
 			store.put(key, value);
