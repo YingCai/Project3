@@ -79,6 +79,9 @@ public class KVStore implements KeyValueInterface {
 
 		try {
 			putDelay();
+            if (store.containsKey(key)) {
+                store.remove(key);
+            }
 			store.put(key, value);
 		} finally {
 			AutoGrader.agStorePutFinished(key, value);
@@ -107,7 +110,12 @@ public class KVStore implements KeyValueInterface {
 		try {
 			delDelay();
 			if(key != null)
-				this.store.remove(key);
+                if (this.store.containsKey(key)) {
+                    this.store.remove(key);
+                } else {
+                    throw new KVException( new KVMessage("resp", "Key does not exist in the store"));
+                }
+
 		} finally {
 			AutoGrader.agStoreDelFinished(key);
 		}
@@ -305,6 +313,11 @@ public class KVStore implements KeyValueInterface {
         try {
             dataStore.put("3","7");
             dataStore.put("5", "5");
+
+            dataStore.put("5", "10");
+            System.out.println("After new 5: " + dataStore.get("5"));
+            dataStore.del("none");
+
         } catch (Exception e){
             e.printStackTrace();
         }
