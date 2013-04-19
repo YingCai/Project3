@@ -224,6 +224,10 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	public String toXML() {
+<<<<<<< HEAD
+=======
+
+>>>>>>> 801e53fc979d26c8931c05a436106e46ad9a1e47
 		try {
 
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
