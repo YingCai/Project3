@@ -107,11 +107,13 @@ public class KVServer implements KeyValueInterface {
 
 		dataCache.getWriteLock(key).lock();
 		try{
-			get(key); //will throw kve if appropriate. janky i know i know
+			if(dataStore.get(key)==null){
+				throw new KVException(new KVMessage("resp", "Does not exist"));
+			}
 			dataCache.del(key);
 			dataStore.del(key);
 		} catch(KVException kve) {
-			throw new KVException(new KVMessage("resp", "Does not exist"));
+			throw kve;
 		} finally{
 			dataCache.getWriteLock(key).unlock();
 			// Must be called before return or abnormal exit

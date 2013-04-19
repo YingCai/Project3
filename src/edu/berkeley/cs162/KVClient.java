@@ -143,8 +143,8 @@ public class KVClient implements KeyValueInterface {
         InputStream in = setupInput(socket);
 
 		KVMessage kvResp = new KVMessage(in);
-        //if(!kvResp.getMessage().equals("Success"))
-        //    throw new KVException(kvResp);
+        if(!kvResp.getMessage().equals("Success"))
+            throw new KVException(kvResp);
         System.out.println("Response:" + kvResp.toXML());
         closeHost(socket);
     }
