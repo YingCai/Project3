@@ -55,7 +55,6 @@ public class KVServer implements KeyValueInterface {
 		AutoGrader.registerKVServer(dataStore, dataCache);
 	}
 
-
 	public void put(String key, String value) throws KVException {
 
 		// Must be called before anything else
