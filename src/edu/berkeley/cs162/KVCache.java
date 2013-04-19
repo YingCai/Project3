@@ -224,8 +224,6 @@ public class KVCache implements KeyValueInterface {
 	}
 
 	public String toXML() {
-<<<<<<< HEAD
-
 		try {
 
             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();
