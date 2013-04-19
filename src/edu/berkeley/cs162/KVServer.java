@@ -63,7 +63,8 @@ public class KVServer implements KeyValueInterface {
 		try{
 				dataCache.getWriteLock(key).lock();
 				del(key);
-		} finally{
+		} catch(KVException e){
+		}finally{
 			dataCache.put(key, value);
 			dataStore.put(key, value);
 			dataCache.getWriteLock(key).unlock();

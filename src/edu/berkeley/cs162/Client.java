@@ -58,6 +58,9 @@ public class Client {
 			String value = kc.get(three);
 			System.out.println("returned: " + value);
 			kc.del(three);
+			
+			System.out.println("Trying to delete non-existent key");
+			kc.del("boobs");
 
 			System.out.println("getting key=3 after del");
 			value = kc.get(three);
