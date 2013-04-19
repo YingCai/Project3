@@ -100,10 +100,9 @@ public class KVClient implements KeyValueInterface {
         Socket socket = connectHost();
         KVMessage kvReq = new KVMessage("putreq");
         kvReq.setKey(key);
-        System.out.println("Client sets key to " + key);
         kvReq.setValue(value);
-        System.out.println("Client sets value to " + value);
         kvReq.sendMessage(socket);
+        System.out.println("Request: " + kvReq.toXML());
         shutdownOut(socket);
         InputStream in = setupInput(socket);
 
@@ -111,7 +110,7 @@ public class KVClient implements KeyValueInterface {
         if(!kvResp.getMessage().equals("Success")) {
             throw new KVException(kvResp);
         }
-
+        System.out.println("Response: " + kvResp.toXML());
         closeHost(socket);
     }
 
@@ -120,6 +119,7 @@ public class KVClient implements KeyValueInterface {
         KVMessage kvReq = new KVMessage("getreq");
         kvReq.setKey(key);
         kvReq.sendMessage(socket);
+        System.out.println("Request: " + kvReq.toXML());
         String result = "";
 
         shutdownOut(socket);
@@ -127,7 +127,7 @@ public class KVClient implements KeyValueInterface {
 
         KVMessage kvResp = new KVMessage(in);
         result = kvResp.getValue();
-
+        System.out.println("Response:" + kvResp.toXML());
         closeHost(socket);
         return result;
     }
@@ -137,6 +137,7 @@ public class KVClient implements KeyValueInterface {
         KVMessage kvReq = new KVMessage("delreq");
         kvReq.setKey(key);
         kvReq.sendMessage(socket);
+        System.out.println("Request: " + kvReq.toXML());
 
         shutdownOut(socket);
         InputStream in = setupInput(socket);
@@ -144,7 +145,7 @@ public class KVClient implements KeyValueInterface {
 		KVMessage kvResp = new KVMessage(in);
         if(!kvResp.getMessage().equals("Success"))
             throw new KVException(kvResp);
-
+        System.out.println("Response:" + kvResp.toXML());
         closeHost(socket);
     }
 

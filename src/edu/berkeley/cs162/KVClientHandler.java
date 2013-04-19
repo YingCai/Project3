@@ -70,7 +70,7 @@ public class KVClientHandler implements NetworkHandler {
 						pong.setValue(kvServer.get(ping.getKey()));
 						pong.setKey(ping.getKey());
 					} catch(KVException kve){
-						pong.setMessage("Unknown Error: Some problem with get");
+						pong = kve.getMsg();
 					} finally{
 						pong.sendMessage(client);
 					}
@@ -79,7 +79,7 @@ public class KVClientHandler implements NetworkHandler {
 						kvServer.put(ping.getKey(), ping.getValue());
 						pong.setMessage("Success");
 					} catch(KVException kve){
-						pong.setMessage("Unknown Error: Some problem with set");
+						pong = kve.getMsg();
 					} finally{
 						pong.sendMessage(client);
 					}
@@ -88,7 +88,7 @@ public class KVClientHandler implements NetworkHandler {
 						kvServer.del(ping.getKey());
 						pong.setMessage("Success");
 					} catch(KVException kve){
-						pong.setMessage("Unknown Error: Some problem with del");
+						pong = kve.getMsg();
 					} finally{
 						pong.sendMessage(client);
 					}

@@ -160,7 +160,6 @@ public class KVMessage {
 			throw new KVException(helperKVException("Unknown Error: Parser Configuration Exception"));
 		}
 		
-		System.out.println(filterinput);
 		//parse document
 		try {
 			document = documentbuilder.parse(filterinput); //this is problem
@@ -190,17 +189,16 @@ public class KVMessage {
 		//parse the KVMessage
 		//TODO: WHAT IF THERE IS OTHER STUFF IN THE MESSAGE?!?
 		String new_msgType = element.getAttribute("type");
-		System.out.println(new_msgType);
 		if (new_msgType.equals("resp")) {
-			String new_key = parseElement(element, "key");
-			String new_value = parseElement(element, "value");
+			String new_key = parseElement(element, "Key");
+			String new_value = parseElement(element, "Value");
 			if (new_key != null && new_value != null){
 				this.msgType = new_msgType;
 				this.key = new_key;
 				this.value = new_value;
 			}
 			else {
-				String new_message = parseElement(element, "message");
+				String new_message = parseElement(element, "Message");
 				if (new_message != null) {
 					this.msgType = new_msgType;
 					this.message = new_message;
@@ -212,7 +210,7 @@ public class KVMessage {
 		}
 		else {
 			if (new_msgType.equals("getreq") || new_msgType.equals("delreq")) {
-				String new_key = parseElement(element, "key");
+				String new_key = parseElement(element, "Key");
 				if (new_key != null){
 					this.msgType = new_msgType;
 					this.key = new_key;
@@ -222,10 +220,8 @@ public class KVMessage {
 				}
 			}
 			else if (new_msgType.equals("putreq")) {
-				String new_key = parseElement(element, "key");
-				String new_value = parseElement(element, "value");
-				System.out.println("NEW_KEY IS " + new_key);
-				System.out.println("NEW_VALUE IS " + new_value);
+				String new_key = parseElement(element, "Key");
+				String new_value = parseElement(element, "Value");
 				if (new_key != null && new_value != null){
 					this.msgType = new_msgType;
 					this.key = new_key;
@@ -243,7 +239,6 @@ public class KVMessage {
 	}
 
 	public String parseElement(Element element, String key) {
-		System.out.println(element);
 		if (element.getElementsByTagName(key).getLength() != 0) {
 			Element value = (Element) element.getElementsByTagName(key).item(0);
 			return value.getFirstChild().getNodeValue();
@@ -297,11 +292,11 @@ public class KVMessage {
 			//PARSE VERBOSELY. EACH TYPE 1 AT A TIME
 			if (msgType.equals("resp")) {
 				if (this.message != null) {
-					addToElement("message", this.message, root, document);
+					addToElement("Message", this.message, root, document);
 				}
 				else if (this.key != null && this.value != null){
-					addToElement("key", this.key, root, document);
-					addToElement("value", this.value, root, document);
+					addToElement("Key", this.key, root, document);
+					addToElement("Value", this.value, root, document);
 				}
 				else {
 					throw new KVException(helperKVException("Unknown Error: Message format incorrect"));
@@ -309,7 +304,7 @@ public class KVMessage {
 			}
 			else if (msgType.equals("getreq") || msgType.equals("delreq")) {
 				if (this.key != null) {
-					addToElement("key", this.key, root, document);
+					addToElement("Key", this.key, root, document);
 				}
 				else {
 					throw new KVException(helperKVException("Unknown Error: Message format incorrect"));
@@ -318,8 +313,8 @@ public class KVMessage {
 			}
 			else if (msgType.equals("putreq")) {
 				if (this.key != null && this.value != null){
-					addToElement("key", this.key, root, document);
-					addToElement("value", this.value, root, document);
+					addToElement("Key", this.key, root, document);
+					addToElement("Value", this.value, root, document);
 				}
 				else {
 					throw new KVException(helperKVException("Unknown Error: Message format incorrect"));
@@ -344,7 +339,6 @@ public class KVMessage {
 			StringWriter stringwriter = new StringWriter();
 			StreamResult streamresult = new StreamResult(stringwriter);
 			transformer.transform(dom, streamresult);
-			System.out.println(stringwriter.toString());
 			return stringwriter.toString();
 		}
 		catch (TransformerException e) {
@@ -369,8 +363,6 @@ public class KVMessage {
 		try {
 			OutputStream outputStream = sock.getOutputStream();
 			String xml = toXML();
-			
-			System.out.println("on the socket to send: " + xml);
 			//TODO: Check this line
 			outputStream.write(xml.getBytes("UTF-8"));
 			outputStream.flush();

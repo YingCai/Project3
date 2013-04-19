@@ -49,14 +49,18 @@ public class Client {
 			kc.put(three, seven);
 			System.out.println("ok");
 
-			System.out.println("putting (3, 7) (again)");
-			kc.put(three, seven);
+			String eight = "8";
+			System.out.println("putting (3, 8)");
+			kc.put(three, eight);
 			System.out.println("ok");
 
 			System.out.println("getting key=3");
 			String value = kc.get(three);
 			System.out.println("returned: " + value);
 			kc.del(three);
+
+			System.out.println("getting key=3 after del");
+			value = kc.get(three);
 
 		}catch(Exception e){
 			e.printStackTrace();
