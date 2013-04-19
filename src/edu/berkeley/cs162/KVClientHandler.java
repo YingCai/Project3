@@ -60,7 +60,6 @@ public class KVClientHandler implements NetworkHandler {
 		private KVServer kvServer = null;
 		private Socket client = null;
 		
-		@Override
 		public void run() {
 		     try {
 				KVMessage ping = new KVMessage(client.getInputStream());
@@ -117,7 +116,6 @@ public class KVClientHandler implements NetworkHandler {
 	/* (non-Javadoc)
 	 * @see edu.berkeley.cs162.NetworkHandler#handle(java.net.Socket)
 	 */
-	@Override
 	public void handle(Socket client) throws IOException {
 		Runnable r = new ClientHandler(kv_Server, client);
 		try {

@@ -51,7 +51,12 @@ public class SocketServer {
 	}
 	
 	public void connect() throws IOException {
+		try{
 	      server = new ServerSocket(port);
+		} catch (IOException e){
+			System.out.println("Could not connect!");
+			System.out.println(e);
+		}
 	}
 	
 	/**
