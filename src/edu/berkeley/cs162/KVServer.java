@@ -61,8 +61,8 @@ public class KVServer implements KeyValueInterface {
 		AutoGrader.agKVServerPutStarted(key, value);
 
 		try{
-				dataCache.getWriteLock(key).lock();
-				del(key);
+			dataCache.getWriteLock(key).lock();
+			del(key);
 		} catch(KVException e){
 		}finally{
 			dataCache.put(key, value);
@@ -107,7 +107,9 @@ public class KVServer implements KeyValueInterface {
 
 		dataCache.getWriteLock(key).lock();
 		try{
-			if(dataStore.get(key)==null){
+			if(dataStore.get(key).equals(null)){
+				// Must be called before return or abnormal exit
+				AutoGrader.agKVServerDelFinished(key);
 				throw new KVException(new KVMessage("resp", "Does not exist"));
 			}
 			dataCache.del(key);

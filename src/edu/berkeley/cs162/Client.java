@@ -50,17 +50,22 @@ public class Client {
 			System.out.println("ok");
 
 			String eight = "8";
-			System.out.println("putting (3, 8)");
+			System.out.println("putting (3, 7)");
 			kc.put(three, eight);
 			System.out.println("ok");
 
 			System.out.println("getting key=3");
 			String value = kc.get(three);
 			System.out.println("returned: " + value);
+			
 			kc.del(three);
 			
 			System.out.println("Trying to delete non-existent key");
-			kc.del("boobs");
+			try{
+				kc.del(three);
+			} catch (KVException kve){
+				System.out.println("Ha ha! Can't delete non-existent key.");
+			}
 
 			System.out.println("getting key=3 after del");
 			value = kc.get(three);
