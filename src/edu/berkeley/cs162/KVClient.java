@@ -77,88 +77,134 @@ public class KVClient implements KeyValueInterface {
         }
     }
 
-    public void put(String key, String value) throws KVException {
-        Socket socket = this.connectHost();
-        KVMessage kvReq = new KVMessage("putreq");
-        kvReq.setKey(key);
-        kvReq.setValue(value);
-        kvReq.sendMessage(socket);
-        Boolean success = false;
-
+    private void shutdownOut(Socket socket) throws KVException {
         try {
             socket.shutdownOutput();
         } catch(IOException io) {
             throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
         }
+    }
 
+    private InputStream setupInput(Socket socket) throws KVException {
+        InputStream in;
         try {
-            InputStream in = socket.getInputStream();
-            KVMessage kvResp = new KVMessage(in);
-            if(kvResp.getMessage().equals("Success")) {
-                success = true;
-            } else if(kvResp.getKey() == null){
-                throw new KVException(kvResp);
-            }
+            in = socket.getInputStream();
         } catch(IOException io) {
             throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
         }
 
-        // if(!success)
-        //     throw new KVException(new KVMessage("resp", "Unknown Error: Put failed"));
+        return in;
+    }
 
-        this.closeHost(socket);
+    public void put(String key, String value) throws KVException {
+        Socket socket = connectHost();
+        KVMessage kvReq = new KVMessage("putreq");
+        kvReq.setKey(key);
+        System.out.println("Client sets key to " + key);
+        kvReq.setValue(value);
+        System.out.println("Client sets value to " + value);
+        kvReq.sendMessage(socket);
+        shutdownOut(socket);
+        InputStream in = setupInput(socket);
+
+        KVMessage kvResp = new KVMessage(in);
+        if(!kvResp.getMessage().equals("Success")) {
+            throw new KVException(kvResp);
+        }
+
+        closeHost(socket);
     }
 
     public String get(String key) throws KVException {
-        Socket socket = this.connectHost();
+        Socket socket = connectHost();
         KVMessage kvReq = new KVMessage("getreq");
         kvReq.setKey(key);
         kvReq.sendMessage(socket);
         String result = "";
 
-        try {
-            socket.shutdownOutput();
-        } catch(IOException io) {
-            throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
-        }
+        shutdownOut(socket);
+        InputStream in = setupInput(socket);
 
-        try {
-            InputStream in = socket.getInputStream();
-            KVMessage kvResp = new KVMessage(in);
-            if(kvResp.getMessage() != null) {
-                throw new KVException(kvResp);
-            }
-            result = kvResp.getValue();
-        } catch(IOException io) {
-            throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
-        }
+        KVMessage kvResp = new KVMessage(in);
+        result = kvResp.getValue();
 
-        this.closeHost(socket);
+        closeHost(socket);
         return result;
     }
 
     public void del(String key) throws KVException {
-        Socket socket = this.connectHost();
+        Socket socket = connectHost();
         KVMessage kvReq = new KVMessage("delreq");
         kvReq.setKey(key);
         kvReq.sendMessage(socket);
 
-        try {
-            socket.shutdownOutput();
-        } catch(IOException io) {
-            throw new KVException(new KVMessage("resp", "Unknown Error: Couldn’t shut down output"));
-        }
+        shutdownOut(socket);
+        InputStream in = setupInput(socket);
 
-        // try {
-        //  InputStream in = socket.getInputStream();
-        //  KVMessage kvResp = new KVMessage(in);
-  //           if(!kvResp.getMessage().equals("Success"))
-  //               throw new KVException(new KVMessage("resp", "Unknown Error: Delete failed"));
+		KVMessage kvResp = new KVMessage(in);
+        if(!kvResp.getMessage().equals("Success"))
+            throw new KVException(kvResp);
 
-        // } catch(IOException io) {
-        //  throw new KVException(new KVMessage("resp", "Network Error: Could not receive data"));
-        // }
-
-        this.closeHost(socket);
+        closeHost(socket);
     }
+
+    // public boolean connectTest(){
+    //     try {
+    //         KVServer kvserver = new KVServer(100, 10);
+    //         SocketServer sserver = new SocketServer("localhost", 8080);
+    //         Thread server = new Thread(new runServer(kvserver, sserver));
+    //         server.start();
+    //         Socket socket = this.connectHost();
+    //         sserver.stop();
+    //         server.stop();
+    //         while(server.isAlive()){
+    //             Thread.currentThread().yield();
+    //         }
+    //         return socket.isConnected();
+    //     } catch (Exception e){
+    //         System.out.println(e.getMessage());
+    //         return false;
+    //     }
+    // }
+    
+    // public boolean closeTest(){
+    //     try {
+    //         KVServer kvserver = new KVServer(100, 10);
+    //         SocketServer sserver = new SocketServer("localhost", 8080);
+    //         Thread server = new Thread(new runServer(kvserver, sserver));
+    //         server.start(); 
+    //         Socket socket = this.connectHost();
+    //         this.closeHost(socket);
+    //         sserver.stop();
+    //         server.stop();
+    //         while(server.isAlive()){
+    //             Thread.currentThread().yield();
+    //         }
+    //         return socket.isClosed();
+    //     } catch (Exception e){
+    //         System.out.println(e.getMessage());
+    //         return false;
+    //     }
+    // }
+
+    // private class runServer implements Runnable{
+    //     KVServer server;
+    //     SocketServer ss;
+    //     public runServer(KVServer s, SocketServer socketServer){
+    //         kvclient.ss = socketServer;
+    //         kvclient.server = s;
+    //     }
+    //     public void run(){
+    //         try {
+    //             System.out.println("Binding Server:");
+    //             NetworkHandler handler = new KVClientHandler(kvclient.server);
+    //             ss.addHandler(handler);
+    //             ss.connect();
+    //             System.out.println("Starting Server");
+    //             ss.run();
+    //         } catch (Exception e){
+    //             ;
+    //         }
+    //     }
+    // }
 }

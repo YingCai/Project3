@@ -63,6 +63,7 @@ public class KVClientHandler implements NetworkHandler {
 		public void run() {
 		     try {
 				KVMessage ping = new KVMessage(client.getInputStream());
+				System.out.println("Ping's raw XML: " + ping.toXML());
 				KVMessage pong = new KVMessage("resp");
 				if(ping.getMsgType().equals("getreq")){
 					try{
@@ -95,10 +96,15 @@ public class KVClientHandler implements NetworkHandler {
 					pong.setMessage("Unknown Error: Bad request!");
 					pong.sendMessage(client);
 				}
+				client.shutdownInput();
+				client.shutdownOutput();
+				client.close();
 			} catch (Exception e) {
 				System.out.println("Problem handling client!");
+				System.out.println(e);
 				e.printStackTrace();
 				try {
+					client.shutdownInput();
 					client.close();
 				} catch (IOException e1) {
 					System.out.println("Derp. Problem closing client connection.");

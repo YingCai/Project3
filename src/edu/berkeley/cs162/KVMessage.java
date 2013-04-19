@@ -146,8 +146,9 @@ public class KVMessage {
 	public KVMessage(InputStream input) throws KVException {
 		DocumentBuilder documentbuilder = null;
 		Document document = null;
+        NoCloseInputStream filterinput = new NoCloseInputStream(input);
 
-		//create document builder
+	//create document builder
 		try {
 			DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 			documentbuilder = factory.newDocumentBuilder();
@@ -158,11 +159,13 @@ public class KVMessage {
 		catch (ParserConfigurationException e){
 			throw new KVException(helperKVException("Unknown Error: Parser Configuration Exception"));
 		}
-
+		
+		System.out.println(filterinput);
 		//parse document
 		try {
-			document = documentbuilder.parse(input);
+			document = documentbuilder.parse(filterinput); //this is problem
 		}
+		
 		catch (IllegalArgumentException e) {
 			throw new KVException(helperKVException("Unknown Error: InputStream is null"));
 		}
@@ -170,6 +173,7 @@ public class KVMessage {
 			throw new KVException(helperKVException("Network Error: Could not receive data"));
 		}
 		catch (SAXException e) {
+			System.out.println(e.getMessage());
 			throw new KVException(helperKVException("XML Error: Received unparseable message"));
 		}
 
@@ -186,16 +190,17 @@ public class KVMessage {
 		//parse the KVMessage
 		//TODO: WHAT IF THERE IS OTHER STUFF IN THE MESSAGE?!?
 		String new_msgType = element.getAttribute("type");
-		if (msgType.equals("resp")) {
-			String new_key = parseElement(element, "Key");
-			String new_value = parseElement(element, "Value");
+		System.out.println(new_msgType);
+		if (new_msgType.equals("resp")) {
+			String new_key = parseElement(element, "key");
+			String new_value = parseElement(element, "value");
 			if (new_key != null && new_value != null){
 				this.msgType = new_msgType;
 				this.key = new_key;
 				this.value = new_value;
 			}
 			else {
-				String new_message = parseElement(element, "Message");
+				String new_message = parseElement(element, "message");
 				if (new_message != null) {
 					this.msgType = new_msgType;
 					this.message = new_message;
@@ -207,7 +212,7 @@ public class KVMessage {
 		}
 		else {
 			if (new_msgType.equals("getreq") || new_msgType.equals("delreq")) {
-				String new_key = parseElement(element, "Key");
+				String new_key = parseElement(element, "key");
 				if (new_key != null){
 					this.msgType = new_msgType;
 					this.key = new_key;
@@ -217,8 +222,10 @@ public class KVMessage {
 				}
 			}
 			else if (new_msgType.equals("putreq")) {
-				String new_key = parseElement(element, "Key");
-				String new_value = parseElement(element, "Value");
+				String new_key = parseElement(element, "key");
+				String new_value = parseElement(element, "value");
+				System.out.println("NEW_KEY IS " + new_key);
+				System.out.println("NEW_VALUE IS " + new_value);
 				if (new_key != null && new_value != null){
 					this.msgType = new_msgType;
 					this.key = new_key;
@@ -236,8 +243,10 @@ public class KVMessage {
 	}
 
 	public String parseElement(Element element, String key) {
+		System.out.println(element);
 		if (element.getElementsByTagName(key).getLength() != 0) {
-			return element.getElementsByTagName(key).item(0).getFirstChild().getNodeValue();
+			Element value = (Element) element.getElementsByTagName(key).item(0);
+			return value.getFirstChild().getNodeValue();
 		}
 		return null;
 	}
@@ -335,6 +344,7 @@ public class KVMessage {
 			StringWriter stringwriter = new StringWriter();
 			StreamResult streamresult = new StreamResult(stringwriter);
 			transformer.transform(dom, streamresult);
+			System.out.println(stringwriter.toString());
 			return stringwriter.toString();
 		}
 		catch (TransformerException e) {
@@ -359,7 +369,8 @@ public class KVMessage {
 		try {
 			OutputStream outputStream = sock.getOutputStream();
 			String xml = toXML();
-
+			
+			System.out.println("on the socket to send: " + xml);
 			//TODO: Check this line
 			outputStream.write(xml.getBytes("UTF-8"));
 			outputStream.flush();
