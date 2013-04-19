@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<KVStore>
+  <KVPair>
+    <Key>Test Key</Key>
+    <Value>Test Value</Value>
+  </KVPair>
+  <KVPair>
+    <Key>Test Key 1 </Key>
+    <Value>Test Value 1</Value>
+  </KVPair>
+</KVStore>

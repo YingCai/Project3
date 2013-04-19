@@ -43,6 +43,7 @@ public class SocketServer {
 	int port;
 	NetworkHandler handler;
 	ServerSocket server;
+	boolean notClosed=true;
 	
 	public SocketServer(String hostname, int port) {
 		this.hostname = hostname;
@@ -50,7 +51,12 @@ public class SocketServer {
 	}
 	
 	public void connect() throws IOException {
-	      // TODO: implement me
+		try{
+	      server = new ServerSocket(port);
+		} catch (IOException e){
+			System.out.println("Could not connect!");
+			System.out.println(e);
+		}
 	}
 	
 	/**
@@ -58,7 +64,9 @@ public class SocketServer {
 	 * @throws IOException if there is a network error (for instance if the socket is inadvertently closed) 
 	 */
 	public void run() throws IOException {
-	      // TODO: implement me
+		while(notClosed){
+			handler.handle(server.accept());
+		}
 	}
 	
 	/** 
@@ -73,11 +81,17 @@ public class SocketServer {
 	 * Stop the ServerSocket
 	 */
 	public void stop() {
-	      // TODO: implement me
+	      notClosed = false;
+	      closeSocket();
 	}
 	
 	private void closeSocket() {
-	     // TODO: implement me
+		try{
+			server.close();
+		}catch(IOException e){
+			System.out.println("Problem while trying to close socket.");
+			System.out.println(e);
+		}
 	}
 	
 	protected void finalize(){

@@ -1,0 +1,55 @@
+[1mdiff --git a/bin/edu/berkeley/cs162/AutoGrader.class b/bin/edu/berkeley/cs162/AutoGrader.class[m
+[1mindex 92acadc..c1bf6a2 100644[m
+Binary files a/bin/edu/berkeley/cs162/AutoGrader.class and b/bin/edu/berkeley/cs162/AutoGrader.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/Client.class b/bin/edu/berkeley/cs162/Client.class[m
+[1mindex bdf4e2d..78d2f3b 100644[m
+Binary files a/bin/edu/berkeley/cs162/Client.class and b/bin/edu/berkeley/cs162/Client.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVCache.class b/bin/edu/berkeley/cs162/KVCache.class[m
+[1mindex 4d309e6..337aa67 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVCache.class and b/bin/edu/berkeley/cs162/KVCache.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVClient.class b/bin/edu/berkeley/cs162/KVClient.class[m
+[1mindex 049e347..b8bf5d9 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVClient.class and b/bin/edu/berkeley/cs162/KVClient.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVClientHandler$ClientHandler.class b/bin/edu/berkeley/cs162/KVClientHandler$ClientHandler.class[m
+[1mindex efd101d..ff2ca36 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVClientHandler$ClientHandler.class and b/bin/edu/berkeley/cs162/KVClientHandler$ClientHandler.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVClientHandler.class b/bin/edu/berkeley/cs162/KVClientHandler.class[m
+[1mindex 6ed6518..898e879 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVClientHandler.class and b/bin/edu/berkeley/cs162/KVClientHandler.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVMessage$NoCloseInputStream.class b/bin/edu/berkeley/cs162/KVMessage$NoCloseInputStream.class[m
+[1mindex 5622767..29793be 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVMessage$NoCloseInputStream.class and b/bin/edu/berkeley/cs162/KVMessage$NoCloseInputStream.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVMessage.class b/bin/edu/berkeley/cs162/KVMessage.class[m
+[1mindex 26210be..fa97c34 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVMessage.class and b/bin/edu/berkeley/cs162/KVMessage.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVServer.class b/bin/edu/berkeley/cs162/KVServer.class[m
+[1mindex c3d5780..a41d9c0 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVServer.class and b/bin/edu/berkeley/cs162/KVServer.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/KVStore.class b/bin/edu/berkeley/cs162/KVStore.class[m
+[1mindex 08d0a82..57a05e7 100644[m
+Binary files a/bin/edu/berkeley/cs162/KVStore.class and b/bin/edu/berkeley/cs162/KVStore.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/Server.class b/bin/edu/berkeley/cs162/Server.class[m
+[1mindex 5d4f7f3..8d7db01 100644[m
+Binary files a/bin/edu/berkeley/cs162/Server.class and b/bin/edu/berkeley/cs162/Server.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/SocketServer.class b/bin/edu/berkeley/cs162/SocketServer.class[m
+[1mindex 6bc8244..d7922b0 100644[m
+Binary files a/bin/edu/berkeley/cs162/SocketServer.class and b/bin/edu/berkeley/cs162/SocketServer.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/ThreadPool.class b/bin/edu/berkeley/cs162/ThreadPool.class[m
+[1mindex d3cf458..7c3507c 100644[m
+Binary files a/bin/edu/berkeley/cs162/ThreadPool.class and b/bin/edu/berkeley/cs162/ThreadPool.class differ
+[1mdiff --git a/bin/edu/berkeley/cs162/WorkerThread.class b/bin/edu/berkeley/cs162/WorkerThread.class[m
+[1mindex 8a3a24f..e3778e1 100644[m
+Binary files a/bin/edu/berkeley/cs162/WorkerThread.class and b/bin/edu/berkeley/cs162/WorkerThread.class differ
+[1mdiff --git a/src/edu/berkeley/cs162/KVCache.java b/src/edu/berkeley/cs162/KVCache.java[m
+[1mindex ddbf7ad..b2af3ae 100644[m
+[1m--- a/src/edu/berkeley/cs162/KVCache.java[m
+[1m+++ b/src/edu/berkeley/cs162/KVCache.java[m
+[36m@@ -224,8 +224,6 @@[m [mpublic class KVCache implements KeyValueInterface {[m
+ 	}[m
+ [m
+ 	public String toXML() {[m
+[31m-<<<<<<< HEAD[m
+[31m-[m
+ 		try {[m
+ [m
+             DocumentBuilderFactory docFactory = DocumentBuilderFactory.newInstance();[m
