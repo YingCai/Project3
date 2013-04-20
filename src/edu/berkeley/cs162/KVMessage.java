@@ -102,9 +102,40 @@ public class KVMessage {
 	    public void close() {} // ignore close
 	}
 
+	/*TODO: EUGENE - HELPER METHODS --------------------------------------------------*/
 	public KVMessage helperKVException(String msg) throws KVException {
 		return new KVMessage("resp", msg);
 	}
+	
+
+    public boolean checkMsgType(String msgType) {
+        return (msgType.equals("getreq") || msgType.equals("putreq") || msgType.equals("delreq") || msgType.equals("resp"));
+    }
+    
+
+	public String parseElement(Element kvmessage, String key) {
+		if (kvmessage.getElementsByTagName(key).getLength() != 0) {
+			Element value = (Element) kvmessage.getElementsByTagName(key).item(0);
+			return value.getFirstChild().getNodeValue();
+		}
+		return null;
+	}
+	
+	public boolean isValidKey(String k) {
+		return (k.length() > 0 && k.length() <= 256);
+	}
+	
+	public boolean isValidValue(String v) {
+		return (v.length() > 0 && v.length() <= 256000);
+	}
+
+	//THROWS AN UNCHECKED DOM-EXCEPTION
+	public void addToKVM(String k, String v, Element kvm, Document doc) {
+		Element new_element = doc.createElement(k);
+		new_element.appendChild(doc.createTextNode(v));
+		kvm.appendChild(new_element);
+	}
+    /*--------------------------------------------------------------------------------*/
 
 	/***
 	 *
@@ -127,12 +158,6 @@ public class KVMessage {
         this.msgType = msgType;
         this.message = message;
 	}
-
-
-    //TODO: Eugene. done
-    public boolean checkMsgType(String msgType) {
-        return (msgType.equals("getreq") || msgType.equals("putreq") || msgType.equals("delreq") || msgType.equals("resp"));
-    }
 
 	 /***
      * Parse KVMessage from incoming network connection
@@ -166,13 +191,14 @@ public class KVMessage {
 		}
 		
 		catch (IllegalArgumentException e) {
-			throw new KVException(helperKVException("Unknown Error: InputStream is null"));
+			throw new KVException(helperKVException("Network Error: Could not receive data"));
 		}
 		catch (IOException e) {
 			throw new KVException(helperKVException("Network Error: Could not receive data"));
 		}
 		catch (SAXException e) {
-			System.out.println(e.getMessage());
+			//Q: why do we keep getting this?
+			//A: looks like this is often given when either S or C crashes and leaves unclosed socket
 			throw new KVException(helperKVException("XML Error: Received unparseable message"));
 		}
 
@@ -184,21 +210,29 @@ public class KVMessage {
 			throw new KVException(helperKVException("Unknown Error: Multiple KVMessages in one send"));
 		}
 		Node node = document.getElementsByTagName("KVMessage").item(0);
-		Element element = (Element) node;
+		Element kvmessage = (Element) node;
 
 		//parse the KVMessage
-		//TODO: WHAT IF THERE IS OTHER STUFF IN THE MESSAGE?!?
-		String new_msgType = element.getAttribute("type");
+        //The variable element is the KVMessage
+		String new_msgType = kvmessage.getAttribute("type");
 		if (new_msgType.equals("resp")) {
-			String new_key = parseElement(element, "Key");
-			String new_value = parseElement(element, "Value");
-			if (new_key != null && new_value != null){
-				this.msgType = new_msgType;
-				this.key = new_key;
-				this.value = new_value;
+			String new_key = parseElement(kvmessage, "Key");
+			String new_value = parseElement(kvmessage, "Value");
+			if (new_key != null && new_value != null ) {
+				if (!isValidKey(new_key)) {
+		            throw new KVException(helperKVException("Oversized key"));
+				}
+				if (!isValidValue(new_value)) {
+		            throw new KVException(helperKVException("Oversized value"));
+				}
+				else {
+					this.msgType = new_msgType;
+					this.key = new_key;
+					this.value = new_value;
+				}
 			}
 			else {
-				String new_message = parseElement(element, "Message");
+				String new_message = parseElement(kvmessage, "Message");
 				if (new_message != null) {
 					this.msgType = new_msgType;
 					this.message = new_message;
@@ -210,40 +244,44 @@ public class KVMessage {
 		}
 		else {
 			if (new_msgType.equals("getreq") || new_msgType.equals("delreq")) {
-				String new_key = parseElement(element, "Key");
+				String new_key = parseElement(kvmessage, "Key");
 				if (new_key != null){
-					this.msgType = new_msgType;
-					this.key = new_key;
+					if (!isValidKey(new_key)) {
+			            throw new KVException(helperKVException("Oversized key"));
+					}
+					else {
+						this.msgType = new_msgType;
+						this.key = new_key;
+					}
 				}
 				else {
 		            throw new KVException(helperKVException("Message format incorrect"));
 				}
 			}
 			else if (new_msgType.equals("putreq")) {
-				String new_key = parseElement(element, "Key");
-				String new_value = parseElement(element, "Value");
-				if (new_key != null && new_value != null){
-					this.msgType = new_msgType;
-					this.key = new_key;
-					this.value = new_value;
+				String new_key = parseElement(kvmessage, "Key");
+				String new_value = parseElement(kvmessage, "Value");
+				if (new_key != null && new_value != null ) {
+					if (!isValidKey(new_key)) {
+			            throw new KVException(helperKVException("Oversized key"));
+					}
+					if (!isValidValue(new_value)) {
+			            throw new KVException(helperKVException("Oversized value"));
+					}
+					else {
+						this.msgType = new_msgType;
+						this.key = new_key;
+						this.value = new_value;
+					}
 				}
 				else {
 					throw new KVException(helperKVException("Message format incorrect"));
 				}
-
 			}
 			else {
-				throw new KVException(helperKVException("Message format incorrect"));
+				throw new KVException(helperKVException("Unknown Error: msgType Invalid"));
 			}
 		}
-	}
-
-	public String parseElement(Element element, String key) {
-		if (element.getElementsByTagName(key).getLength() != 0) {
-			Element value = (Element) element.getElementsByTagName(key).item(0);
-			return value.getFirstChild().getNodeValue();
-		}
-		return null;
 	}
 
 	/**
@@ -251,11 +289,11 @@ public class KVMessage {
 	 * @return the XML String
 	 * @throws KVException if not enough data is available to generate a valid KV XML message
 	 */
-	// TODO: Eugene. UNIMPLEMENTED
+	// TODO: Eugene. Done
 	public String toXML() throws KVException {
 		//check msgType
 		if (msgType == null || !checkMsgType(msgType)) {
-			throw new KVException(helperKVException("Unkown Error: Invalid msgType"));
+			throw new KVException(helperKVException("Unkown Error: msgType Invalid"));
 		}
 
 		//document builder
@@ -274,50 +312,71 @@ public class KVMessage {
 		}
 
 		//make element
-		Element root = null;
+		Element kvmessage = null;
 		try {
-			root = document.createElement("KVMessage");
-			Attr msgType_Attr = document.createAttribute("type");
-
+			kvmessage = document.createElement("KVMessage");
+			Attr type = null;
 			if (checkMsgType(this.msgType)){
-				msgType_Attr.setValue(msgType);
+				type = document.createAttribute("type");
+				type.setValue(msgType);
 			}
 			else {
 				throw new KVException(helperKVException("Unkown Error: msgType Invalid"));
 			}
 
-			root.setAttributeNode(msgType_Attr);
-			document.appendChild(root);
+			kvmessage.setAttributeNode(type);
+			document.appendChild(kvmessage);
 
 			//PARSE VERBOSELY. EACH TYPE 1 AT A TIME
 			if (msgType.equals("resp")) {
 				if (this.message != null) {
-					addToElement("Message", this.message, root, document);
+					addToKVM("Message", this.message, kvmessage, document);
 				}
 				else if (this.key != null && this.value != null){
-					addToElement("Key", this.key, root, document);
-					addToElement("Value", this.value, root, document);
+					if (!isValidKey(this.key)) {
+			            throw new KVException(helperKVException("Oversized key"));
+					}
+					if (!isValidValue(this.value)) {
+			            throw new KVException(helperKVException("Oversized value"));
+					}
+					else {
+						addToKVM("Key", this.key, kvmessage, document);
+						addToKVM("Value", this.value, kvmessage, document);
+					}
 				}
 				else {
-					throw new KVException(helperKVException("Unknown Error: Message format incorrect"));
+					throw new KVException(helperKVException("Message format incorrect"));
 				}
 			}
 			else if (msgType.equals("getreq") || msgType.equals("delreq")) {
 				if (this.key != null) {
-					addToElement("Key", this.key, root, document);
+					if (!isValidKey(this.key)) {
+			            throw new KVException(helperKVException("Oversized key"));
+					}
+					else {
+						addToKVM("Key", this.key, kvmessage, document);
+					}
 				}
 				else {
-					throw new KVException(helperKVException("Unknown Error: Message format incorrect"));
+					throw new KVException(helperKVException("Message format incorrect"));
 				}
 
 			}
 			else if (msgType.equals("putreq")) {
 				if (this.key != null && this.value != null){
-					addToElement("Key", this.key, root, document);
-					addToElement("Value", this.value, root, document);
+					if (!isValidKey(this.key)) {
+			            throw new KVException(helperKVException("Oversized key"));
+					}
+					if (!isValidValue(this.value)) {
+			            throw new KVException(helperKVException("Oversized value"));
+					}
+					else {
+						addToKVM("Key", this.key, kvmessage, document);
+						addToKVM("Value", this.value, kvmessage, document);
+					}
 				}
 				else {
-					throw new KVException(helperKVException("Unknown Error: Message format incorrect"));
+					throw new KVException(helperKVException("Message format incorrect"));
 				}
 			}
 			else {
@@ -326,7 +385,7 @@ public class KVMessage {
 
 		}
 		catch (DOMException e){
-			throw new KVException(helperKVException("Unkown Error: improper XML values"));
+			throw new KVException(helperKVException("Unknown Error: DOM parse error"));
 		}
 
 		//Prepare to write out
@@ -335,26 +394,20 @@ public class KVMessage {
 			TransformerFactory transformerfactory = TransformerFactory.newInstance();
 			transformer = transformerfactory.newTransformer();
 
-			DOMSource dom = new DOMSource(root);
+			DOMSource dom = new DOMSource(kvmessage);
 			StringWriter stringwriter = new StringWriter();
 			StreamResult streamresult = new StreamResult(stringwriter);
 			transformer.transform(dom, streamresult);
-			return stringwriter.toString();
+			String xml = stringwriter.toString();
+			return xml;
 		}
 		catch (TransformerException e) {
 			throw new KVException(helperKVException("Unkown Error: Transformer Configuration Error"));
 		}
 		catch (DOMException e){
-			throw new KVException(helperKVException("Unkown Error: improper XML values"));
+			throw new KVException(helperKVException("Unknown Error: DOM parse error"));
 		}
 
-	}
-
-	//THROWS AN UNCHECKED DOM-EXCEPTION
-	public void addToElement(String k, String v, Element element, Document document) {
-		Element new_element = document.createElement(k);
-		new_element.appendChild(document.createTextNode(v));
-		element.appendChild(new_element);
 	}
 
 	// TODO: Eugene. Done
