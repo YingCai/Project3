@@ -126,7 +126,7 @@ public class KVClient implements KeyValueInterface {
         InputStream in = setupInput(socket);
 
         KVMessage kvResp = new KVMessage(in);
-        if(!kvResp.getMessage().equals("Does not exist") && kvResp.getValue() == null) {
+        if(kvResp.getValue() == null) {
             throw new KVException(kvResp);
         }
         result = kvResp.getValue();
