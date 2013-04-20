@@ -17,7 +17,6 @@ public class KVClient_Test {
             this.sserver = ss;
         }
 
-        @Override
         public void run() {
             NetworkHandler nh = new KVClientHandler(this.kvserver);
             this.sserver.addHandler(nh);
@@ -58,7 +57,7 @@ public class KVClient_Test {
         String result = "";
 
         try {
-            client.put(key, val1);
+            kvclient.put(key, val1);
         } catch (KVException kve1) {
             fail("Put failed");
         }
@@ -92,7 +91,7 @@ public class KVClient_Test {
         String result = null;
 
         try {
-            kvclient.put(key, val1);
+            kvclient.put(key, val);
         } catch (KVException kve1) {
             fail("Put failed");
         }
@@ -110,7 +109,7 @@ public class KVClient_Test {
         assertEquals("Deleted", result, null);
 
         try {
-            kvclient.put(key, val1);
+            kvclient.put(key, val);
         } catch (KVException kve4) {
             fail("Put #2 failed");
         }
@@ -138,6 +137,5 @@ public class KVClient_Test {
         setupConnection();
         testPutAndGet();
         testDel();
-        teardownConnection();
     }    
 }
